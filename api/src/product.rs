@@ -24,7 +24,7 @@ pub struct Product {
 }
 
 #[derive(Debug, Object)]
-struct CreateProductBody {
+struct ProductBody {
     name: String,
     description: String,
     price: f64,
@@ -280,7 +280,7 @@ impl ProductApi {
     #[oai(path = "/products", method = "post")]
     async fn create_product(
         &self,
-        Json(product): Json<CreateProductBody>,
+        Json(product): Json<ProductBody>,
         AuthToken(user): AuthToken,
         Data(db): Data<&SqlitePool>,
     ) -> ServerResult<CreateProductResponse> {
@@ -313,7 +313,7 @@ impl ProductApi {
     async fn update_product(
         &self,
         Path(id): Path<i64>,
-        Json(product): Json<CreateProductBody>,
+        Json(product): Json<ProductBody>,
         AuthToken(user): AuthToken,
         Data(db): Data<&SqlitePool>,
     ) -> ServerResult<UpdateProductResponse> {

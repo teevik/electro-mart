@@ -21,7 +21,7 @@ enum BrandByIdResponse {
 }
 
 #[derive(Debug, Object)]
-pub struct CreateBrandBody {
+pub struct BrandBody {
     pub name: String,
     pub description: Option<String>,
 }
@@ -105,7 +105,7 @@ impl BrandApi {
     #[oai(path = "/brands", method = "post")]
     async fn create_brand(
         &self,
-        Json(brand): Json<CreateBrandBody>,
+        Json(brand): Json<BrandBody>,
         Data(db): Data<&SqlitePool>,
         AuthToken(user): AuthToken,
     ) -> ServerResult<CreateBrandResponse> {
@@ -129,7 +129,7 @@ impl BrandApi {
     async fn update_brand(
         &self,
         Path(id): Path<i64>,
-        Json(brand): Json<CreateBrandBody>,
+        Json(brand): Json<BrandBody>,
         Data(db): Data<&SqlitePool>,
         AuthToken(user): AuthToken,
     ) -> ServerResult<UpdateBrandResponse> {

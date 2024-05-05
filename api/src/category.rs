@@ -21,7 +21,7 @@ enum CategoryByIdResponse {
 }
 
 #[derive(Debug, Object)]
-pub struct CreateCategoryBody {
+pub struct CategoryBody {
     pub name: String,
     pub description: Option<String>,
 }
@@ -108,7 +108,7 @@ impl CategoryApi {
     #[oai(path = "/categories", method = "post")]
     async fn create_category(
         &self,
-        Json(category): Json<CreateCategoryBody>,
+        Json(category): Json<CategoryBody>,
         Data(db): Data<&SqlitePool>,
         AuthToken(user): AuthToken,
     ) -> ServerResult<CreateCategoryResponse> {
@@ -132,7 +132,7 @@ impl CategoryApi {
     async fn update_category(
         &self,
         Path(id): Path<i64>,
-        Json(category): Json<CreateCategoryBody>,
+        Json(category): Json<CategoryBody>,
         Data(db): Data<&SqlitePool>,
         AuthToken(user): AuthToken,
     ) -> ServerResult<UpdateCategoryResponse> {

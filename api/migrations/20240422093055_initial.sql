@@ -1,22 +1,22 @@
 -- litesql database
 
 CREATE TABLE `brand` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     `name` TEXT NOT NULL,
     `description` TEXT
 );
 
 CREATE TABLE `category` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     `name` TEXT NOT NULL,
     `description` TEXT
 );
 
 CREATE TABLE `user` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     `email` TEXT NOT NULL UNIQUE,
     `hashed_password` TEXT NOT NULL,
-    `is_admin` INTEGER NOT NULL,
+    `is_admin` INTEGER NOT NULL DEFAULT false,
     `first_name` TEXT NOT NULL,
     `last_name` TEXT NOT NULL,
     `street` TEXT NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE `user` (
 );
 
 CREATE TABLE `product` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     `name` TEXT NOT NULL,
     `description` TEXT NOT NULL,
     `price` REAL NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE `product` (
 );
 
 CREATE TABLE `order` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     `order_date` DATETIME NOT NULL,
     `total_price` REAL NOT NULL,
     `status` INTEGER NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE `order` (
 );
 
 CREATE TABLE `order_item` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     `quantity` INTEGER NOT NULL,
     `price` REAL NOT NULL,
     `product_id` INTEGER NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE `order_item` (
 );
 
 CREATE TABLE `payment` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     `payment_method` TEXT NOT NULL,
     `payment_date` DATETIME NOT NULL,
     `amount` REAL NOT NULL,

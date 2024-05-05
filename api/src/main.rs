@@ -2,14 +2,20 @@ pub mod category;
 pub mod error;
 pub mod user;
 
+use std::env;
+
 use crate::category::CategoryApi;
 use crate::user::UserApi;
 use anyhow::Context;
-use category::Category;
+use hmac::digest::KeyInit;
+use hmac::Hmac;
 use poem::Route;
 use poem::{listener::TcpListener, EndpointExt};
-use poem_openapi::{param::Query, payload::PlainText, OpenApi, OpenApiService};
+use poem_openapi::OpenApiService;
+use sha2::Sha256;
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
+
+pub type ServerKey = Hmac<Sha256>;
 
 #[derive(Debug, sqlx::FromRow)]
 struct Brand {
@@ -53,6 +59,10 @@ struct Payment {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    if std::env::var_os("RUST_LOG").is_none() {
+        std::env::set_var("RUST_LOG", "poem=debug");
+    }
+
     tracing_subscriber::fmt::init();
 
     let database_file = "database.sqlite";
@@ -70,6 +80,9 @@ async fn main() -> anyhow::Result<()> {
         .await
         .context("run migrations")?;
 
+    let server_key = env::var("SERVER_KEY").context("SERVER_KEY env must be set")?;
+    let server_key = ServerKey::new_from_slice(server_key.as_bytes()).context("make server key")?;
+
     // Start the API service
     let api_service = OpenApiService::new((UserApi, CategoryApi), "Electro Mart API", "1.0")
         .server("http://localhost:3000/api");
@@ -79,7 +92,8 @@ async fn main() -> anyhow::Result<()> {
         .at("/openapi.json", api_service.spec_endpoint())
         .nest("/api", api_service)
         .nest("/", ui)
-        .data(db_pool);
+        .data(db_pool)
+        .data(server_key);
 
     println!("Listening on http://localhost:3000");
 

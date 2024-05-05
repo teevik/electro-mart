@@ -2,6 +2,7 @@ use poem_openapi::{payload::PlainText, ApiResponse};
 
 #[derive(Debug, ApiResponse)]
 pub enum ServerError {
+    /// Internal server error
     #[oai(status = "500")]
     InternalServerError(PlainText<String>),
 }

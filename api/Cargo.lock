@@ -107,6 +107,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "argon2",
+ "chrono",
  "hmac",
  "jwt",
  "poem",
@@ -115,7 +116,6 @@ dependencies = [
  "sha2",
  "sqlx",
  "swagger-ui",
- "thiserror",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -264,7 +264,9 @@ checksum = "a21f936df1771bf62b77f047b726c4625ff2e8aa607c01ec06e5a05bd8463401"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
+ "js-sys",
  "num-traits",
+ "wasm-bindgen",
  "windows-targets 0.52.5",
 ]
 
@@ -1387,6 +1389,7 @@ checksum = "24375f20342eeffd8e5e4f55483ebcda2f3fcc301a2926b61edc761842528d06"
 dependencies = [
  "base64 0.22.0",
  "bytes",
+ "chrono",
  "derive_more",
  "futures-util",
  "indexmap",
@@ -1889,6 +1892,7 @@ dependencies = [
  "atoi",
  "byteorder",
  "bytes",
+ "chrono",
  "crc",
  "crossbeam-queue",
  "either",
@@ -1949,6 +1953,7 @@ dependencies = [
  "sha2",
  "sqlx-core",
  "sqlx-mysql",
+ "sqlx-postgres",
  "sqlx-sqlite",
  "syn 1.0.109",
  "tempfile",
@@ -1967,6 +1972,7 @@ dependencies = [
  "bitflags 2.5.0",
  "byteorder",
  "bytes",
+ "chrono",
  "crc",
  "digest",
  "dotenvy",
@@ -2008,6 +2014,7 @@ dependencies = [
  "base64 0.21.7",
  "bitflags 2.5.0",
  "byteorder",
+ "chrono",
  "crc",
  "dotenvy",
  "etcetera",
@@ -2043,6 +2050,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b244ef0a8414da0bed4bb1910426e890b19e5e9bccc27ada6b797d05c55ae0aa"
 dependencies = [
  "atoi",
+ "chrono",
  "flume",
  "futures-channel",
  "futures-core",

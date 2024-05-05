@@ -11,6 +11,15 @@ pub struct Category {
     pub description: Option<String>,
 }
 
+#[derive(ApiResponse)]
+enum CategoryByIdResponse {
+    #[oai(status = 200)]
+    Found(Json<Category>),
+
+    #[oai(status = 404)]
+    NotFound,
+}
+
 #[derive(Debug, Object)]
 pub struct CreateCategoryBody {
     pub name: String,
@@ -80,17 +89,20 @@ impl CategoryApi {
         &self,
         Path(id): Path<i64>,
         Data(db): Data<&SqlitePool>,
-    ) -> ServerResult<Json<Category>> {
+    ) -> ServerResult<CategoryByIdResponse> {
         let category = sqlx::query_as!(
             Category,
             "SELECT id, name, description FROM category WHERE id = ?",
             id
         )
-        .fetch_one(db)
+        .fetch_optional(db)
         .await
         .context("fetch category")?;
 
-        Ok(Json(category))
+        Ok(match category {
+            Some(category) => CategoryByIdResponse::Found(Json(category)),
+            None => CategoryByIdResponse::NotFound,
+        })
     }
 
     #[oai(path = "/categories", method = "post")]
@@ -104,7 +116,7 @@ impl CategoryApi {
             return Ok(CreateCategoryResponse::Unauthorized);
         }
 
-        let row = sqlx::query!(
+        let inserted = sqlx::query!(
             "INSERT INTO category (name, description) VALUES (?, ?) RETURNING id",
             category.name,
             category.description
@@ -113,9 +125,7 @@ impl CategoryApi {
         .await
         .context("create category")?;
 
-        let id = row.id;
-
-        Ok(CreateCategoryResponse::Created(Json(id)))
+        Ok(CreateCategoryResponse::Created(Json(inserted.id)))
     }
 
     #[oai(path = "/categories/:id", method = "put")]

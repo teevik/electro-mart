@@ -1,11 +1,13 @@
+mod brand;
 mod category;
 mod error;
+mod product;
 mod swagger_ui;
 mod user;
 
-use std::env;
-
+use crate::brand::BrandApi;
 use crate::category::CategoryApi;
+use crate::product::ProductApi;
 use crate::user::UserApi;
 use anyhow::Context;
 use hmac::digest::KeyInit;
@@ -15,6 +17,7 @@ use poem::{listener::TcpListener, EndpointExt};
 use poem_openapi::{OpenApiService, Tags};
 use sha2::Sha256;
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
+use std::env;
 
 pub type ServerKey = Hmac<Sha256>;
 
@@ -22,22 +25,12 @@ pub type ServerKey = Hmac<Sha256>;
 pub enum ApiTags {
     User,
     Category,
+    Brand,
+    Product,
 }
 
 #[derive(Debug, sqlx::FromRow)]
-struct Brand {
-    name: String,
-    description: String,
-}
-
-#[derive(Debug, sqlx::FromRow)]
-struct Product {
-    name: String,
-    description: String,
-    price: f64,
-    stock_quantity: i32,
-    created_at: String,
-}
+struct Product {}
 
 #[derive(Debug, sqlx::FromRow)]
 struct Order {
@@ -87,8 +80,12 @@ async fn main() -> anyhow::Result<()> {
     let server_key = ServerKey::new_from_slice(server_key.as_bytes()).context("make server key")?;
 
     // Start the API service
-    let api_service = OpenApiService::new((UserApi, CategoryApi), "Electro Mart API", "1.0")
-        .server("http://localhost:3000/api");
+    let api_service = OpenApiService::new(
+        (UserApi, CategoryApi, BrandApi, ProductApi),
+        "Electro Mart API",
+        "1.0",
+    )
+    .server("http://localhost:3000/api");
 
     let ui = swagger_ui::create_endpoint(&api_service.spec());
 

@@ -1,6 +1,7 @@
-pub mod category;
-pub mod error;
-pub mod user;
+mod category;
+mod error;
+mod swagger_ui;
+mod user;
 
 use std::env;
 
@@ -11,11 +12,17 @@ use hmac::digest::KeyInit;
 use hmac::Hmac;
 use poem::Route;
 use poem::{listener::TcpListener, EndpointExt};
-use poem_openapi::OpenApiService;
+use poem_openapi::{OpenApiService, Tags};
 use sha2::Sha256;
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
 
 pub type ServerKey = Hmac<Sha256>;
+
+#[derive(Tags)]
+pub enum ApiTags {
+    User,
+    Category,
+}
 
 #[derive(Debug, sqlx::FromRow)]
 struct Brand {
@@ -59,10 +66,6 @@ struct Payment {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "poem=debug");
-    }
-
     tracing_subscriber::fmt::init();
 
     let database_file = "database.sqlite";
@@ -87,7 +90,8 @@ async fn main() -> anyhow::Result<()> {
     let api_service = OpenApiService::new((UserApi, CategoryApi), "Electro Mart API", "1.0")
         .server("http://localhost:3000/api");
 
-    let ui = api_service.swagger_ui();
+    let ui = swagger_ui::create_endpoint(&api_service.spec());
+
     let app = Route::new()
         .at("/openapi.json", api_service.spec_endpoint())
         .nest("/api", api_service)

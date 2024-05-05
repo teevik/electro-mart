@@ -1,4 +1,4 @@
-use crate::{error::ServerResult, ServerKey};
+use crate::{error::ServerResult, ApiTags, ServerKey};
 use anyhow::Context;
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
@@ -77,7 +77,7 @@ enum LoginUserResponse {
 
 pub struct UserApi;
 
-#[OpenApi]
+#[OpenApi(tag = ApiTags::User)]
 impl UserApi {
     #[oai(path = "/user/register", method = "post")]
     async fn register(

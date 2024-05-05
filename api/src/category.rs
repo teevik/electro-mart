@@ -1,7 +1,7 @@
-use crate::{error::ServerResult, user::AuthToken};
+use crate::{error::ServerResult, user::AuthToken, ApiTags};
 use anyhow::Context;
 use poem::web::Data;
-use poem_openapi::{param::Path, payload::Json, ApiResponse, Object};
+use poem_openapi::{param::Path, payload::Json, ApiResponse, Object, OpenApi};
 use sqlx::SqlitePool;
 
 #[derive(Debug, Object)]
@@ -28,14 +28,47 @@ enum CreateCategoryResponse {
     Unauthorized,
 }
 
+#[derive(ApiResponse)]
+enum UpdateCategoryResponse {
+    /// The category has been successfully updated
+    #[oai(status = 204)]
+    Updated,
+
+    /// The user is not authorized to update a category
+    #[oai(status = 401)]
+    Unauthorized,
+}
+
+#[derive(ApiResponse)]
+enum DeleteCategoryResponse {
+    /// The category has been successfully deleted
+    #[oai(status = 204)]
+    Deleted,
+
+    /// The user is not authorized to delete a category
+    #[oai(status = 401)]
+    Unauthorized,
+
+    /// The category with the given ID does not exist
+    #[oai(status = 404)]
+    NotFound,
+
+    /// The category is in use and cannot be deleted
+    #[oai(status = 409)]
+    Conflict,
+}
+
 pub struct CategoryApi;
 
-#[OpenApi]
+#[OpenApi(tag = ApiTags::Category)]
 impl CategoryApi {
     #[oai(path = "/categories", method = "get")]
-    async fn all_categories(&self, db: Data<&SqlitePool>) -> ServerResult<Json<Vec<Category>>> {
+    async fn all_categories(
+        &self,
+        Data(db): Data<&SqlitePool>,
+    ) -> ServerResult<Json<Vec<Category>>> {
         let categories = sqlx::query_as!(Category, "SELECT id, name, description FROM category")
-            .fetch_all(db.0)
+            .fetch_all(db)
             .await
             .context("fetch categories")?;
 
@@ -45,15 +78,15 @@ impl CategoryApi {
     #[oai(path = "/categories/:id", method = "get")]
     async fn category_by_id(
         &self,
-        db: Data<&SqlitePool>,
-        id: Path<i64>,
+        Path(id): Path<i64>,
+        Data(db): Data<&SqlitePool>,
     ) -> ServerResult<Json<Category>> {
         let category = sqlx::query_as!(
             Category,
             "SELECT id, name, description FROM category WHERE id = ?",
-            id.0
+            id
         )
-        .fetch_one(db.0)
+        .fetch_one(db)
         .await
         .context("fetch category")?;
 
@@ -63,11 +96,11 @@ impl CategoryApi {
     #[oai(path = "/categories", method = "post")]
     async fn create_category(
         &self,
-        db: Data<&SqlitePool>,
-        category: Json<CreateCategoryBody>,
-        user: AuthToken,
+        Json(category): Json<CreateCategoryBody>,
+        Data(db): Data<&SqlitePool>,
+        AuthToken(user): AuthToken,
     ) -> ServerResult<CreateCategoryResponse> {
-        if !user.0.is_admin {
+        if !user.is_admin {
             return Ok(CreateCategoryResponse::Unauthorized);
         }
 
@@ -76,12 +109,70 @@ impl CategoryApi {
             category.name,
             category.description
         )
-        .fetch_one(db.0)
+        .fetch_one(db)
         .await
         .context("create category")?;
 
         let id = row.id;
 
         Ok(CreateCategoryResponse::Created(Json(id)))
+    }
+
+    #[oai(path = "/categories/:id", method = "put")]
+    async fn update_category(
+        &self,
+        Path(id): Path<i64>,
+        Json(category): Json<CreateCategoryBody>,
+        Data(db): Data<&SqlitePool>,
+        AuthToken(user): AuthToken,
+    ) -> ServerResult<UpdateCategoryResponse> {
+        if !user.is_admin {
+            return Ok(UpdateCategoryResponse::Unauthorized);
+        }
+
+        sqlx::query!(
+            "UPDATE category SET name = ?, description = ? WHERE id = ?",
+            category.name,
+            category.description,
+            id
+        )
+        .execute(db)
+        .await
+        .context("update category")?;
+
+        Ok(UpdateCategoryResponse::Updated)
+    }
+
+    #[oai(path = "/categories/:id", method = "delete")]
+    async fn delete_category(
+        &self,
+        Path(id): Path<i64>,
+        Data(db): Data<&SqlitePool>,
+        AuthToken(user): AuthToken,
+    ) -> ServerResult<DeleteCategoryResponse> {
+        if !user.is_admin {
+            return Ok(DeleteCategoryResponse::Unauthorized);
+        }
+
+        let row = sqlx::query!("DELETE FROM category WHERE id = ?", id)
+            .execute(db)
+            .await;
+
+        match row {
+            Ok(row) => {
+                if row.rows_affected() == 0 {
+                    return Ok(DeleteCategoryResponse::NotFound);
+                }
+
+                Ok(DeleteCategoryResponse::Deleted)
+            }
+            Err(error) => match error {
+                // Check if error is a foreign key violation
+                sqlx::Error::Database(_) => Ok(DeleteCategoryResponse::Conflict),
+
+                // Otherwise internal server error
+                _ => Err(anyhow::anyhow!(error).context("delete category").into()),
+            },
+        }
     }
 }

@@ -49,7 +49,6 @@ CREATE TABLE `order` (
 CREATE TABLE `order_item` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     `quantity` INTEGER NOT NULL,
-    `price` REAL NOT NULL,
     `product_id` INTEGER NOT NULL,
     `order_id` INTEGER NOT NULL,
     FOREIGN KEY (`product_id`) REFERENCES `product`(`id`) ON DELETE CASCADE,

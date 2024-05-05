@@ -1,5 +1,3 @@
-use std::fmt::{self, Display, Formatter};
-
 use crate::{brand::Brand, category::Category, error::ServerResult, user::AuthToken, ApiTags};
 use anyhow::Context;
 use chrono::NaiveDateTime;
@@ -10,9 +8,10 @@ use poem_openapi::{
     ApiResponse, Enum, Object, OpenApi,
 };
 use sqlx::SqlitePool;
+use std::fmt::{self, Display, Formatter};
 
 #[derive(Debug, Object)]
-pub struct Product {
+struct Product {
     pub id: i64,
     pub name: String,
     pub description: String,
@@ -45,7 +44,7 @@ enum ProductByIdResponse {
 #[derive(ApiResponse)]
 enum CreateProductResponse {
     /// Returns the ID of the created product
-    #[oai(status = 200)]
+    #[oai(status = 201)]
     Created(Json<i64>),
 
     /// The user is not authorized to create a product
@@ -185,7 +184,7 @@ impl ProductApi {
                         WHEN 'Name' THEN product.name
                     END END) DESC
                     LIMIT $3 OFFSET $4
-                ",
+            ",
             sort_by,
             sort_direction,
             take,

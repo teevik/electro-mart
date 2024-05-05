@@ -1,12 +1,14 @@
 mod brand;
 mod category;
 mod error;
+mod order;
 mod product;
 mod swagger_ui;
 mod user;
 
 use crate::brand::BrandApi;
 use crate::category::CategoryApi;
+use crate::order::OrderApi;
 use crate::product::ProductApi;
 use crate::user::UserApi;
 use anyhow::Context;
@@ -27,6 +29,7 @@ pub enum ApiTags {
     Category,
     Brand,
     Product,
+    Order,
 }
 
 #[derive(Debug, sqlx::FromRow)]
@@ -81,7 +84,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Start the API service
     let api_service = OpenApiService::new(
-        (UserApi, CategoryApi, BrandApi, ProductApi),
+        (UserApi, CategoryApi, BrandApi, ProductApi, OrderApi),
         "Electro Mart API",
         "1.0",
     )

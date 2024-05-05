@@ -20,6 +20,7 @@ pub struct AuthenticatedUser {
     pub is_admin: bool,
 }
 
+/// Authentication token that gets decoded to `AuthenticatedUser`
 #[derive(SecurityScheme)]
 #[oai(
     ty = "bearer",
@@ -29,6 +30,7 @@ pub struct AuthenticatedUser {
 )]
 pub struct AuthToken(pub AuthenticatedUser);
 
+/// Verify JWT token
 async fn auth_checker(request: &Request, token: Bearer) -> Option<AuthenticatedUser> {
     let server_key = request.data::<ServerKey>().expect("defined server key");
 

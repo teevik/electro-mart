@@ -29,7 +29,7 @@ pub struct CategoryBody {
 #[derive(ApiResponse)]
 enum CreateCategoryResponse {
     /// Returns the ID of the created category
-    #[oai(status = 200)]
+    #[oai(status = 201)]
     Created(Json<i64>),
 
     /// The user is not authorized to create a category

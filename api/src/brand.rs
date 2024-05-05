@@ -29,7 +29,7 @@ pub struct BrandBody {
 #[derive(ApiResponse)]
 enum CreateBrandResponse {
     /// Returns the ID of the created brand
-    #[oai(status = 200)]
+    #[oai(status = 201)]
     Created(Json<i64>),
 
     /// The user is not authorized to create a brand

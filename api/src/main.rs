@@ -1,7 +1,9 @@
 pub mod category;
 pub mod error;
+pub mod user;
 
 use crate::category::CategoryApi;
+use crate::user::UserApi;
 use anyhow::Context;
 use category::Category;
 use poem::Route;
@@ -13,18 +15,6 @@ use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
 struct Brand {
     name: String,
     description: String,
-}
-
-#[derive(Debug, sqlx::FromRow)]
-struct User {
-    email: String,
-    hashed_password: String,
-    is_admin: bool,
-    first_name: String,
-    last_name: String,
-    street: String,
-    postal_code: String,
-    city: String,
 }
 
 #[derive(Debug, sqlx::FromRow)]
@@ -81,7 +71,7 @@ async fn main() -> anyhow::Result<()> {
         .context("run migrations")?;
 
     // Start the API service
-    let api_service = OpenApiService::new((CategoryApi), "Electro Mart API", "1.0")
+    let api_service = OpenApiService::new((UserApi, CategoryApi), "Electro Mart API", "1.0")
         .server("http://localhost:3000/api");
 
     let ui = api_service.swagger_ui();

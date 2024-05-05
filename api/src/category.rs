@@ -1,7 +1,7 @@
 use crate::{error::ServerResult, user::AuthToken};
 use anyhow::Context;
 use poem::web::Data;
-use poem_openapi::{param::Path, payload::Json, Object};
+use poem_openapi::{param::Path, payload::Json, ApiResponse, Object};
 use sqlx::SqlitePool;
 
 #[derive(Debug, Object)]

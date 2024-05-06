@@ -14,7 +14,7 @@ use poem_openapi::{
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AuthenticatedUser {
     pub id: i64,
     pub is_admin: bool,
@@ -35,7 +35,9 @@ async fn auth_checker(request: &Request, token: Bearer) -> Option<AuthenticatedU
     let server_key = request.data::<ServerKey>().expect("defined server key");
 
     let token = token.token.as_str();
-    token.verify_with_key(server_key).ok()
+    let result = VerifyWithKey::<AuthenticatedUser>::verify_with_key(token, server_key);
+
+    result.ok()
 }
 
 #[derive(Debug, Object)]
@@ -84,9 +86,9 @@ impl UserApi {
     #[oai(path = "/user/register", method = "post")]
     async fn register(
         &self,
-        body: Json<ReigsterUserBody>,
-        db: Data<&SqlitePool>,
-        server_key: Data<&ServerKey>,
+        Json(body): Json<ReigsterUserBody>,
+        Data(db): Data<&SqlitePool>,
+        Data(server_key): Data<&ServerKey>,
     ) -> ServerResult<RegisterUserResponse> {
         let ReigsterUserBody {
             email,
@@ -96,10 +98,10 @@ impl UserApi {
             street,
             postal_code,
             city,
-        } = body.0;
+        } = body;
 
         let existing_user = sqlx::query!("SELECT email FROM user WHERE email = ?", email)
-            .fetch_optional(db.0)
+            .fetch_optional(db)
             .await
             .context("fetch existing user")?;
 
@@ -120,7 +122,7 @@ impl UserApi {
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 returning id, is_admin
             ", email, hashed_passowrd, first_name, last_name, street, postal_code, city)
-            .fetch_one(db.0)
+            .fetch_one(db)
             .await
             .context("insert user")?;
 
@@ -129,7 +131,7 @@ impl UserApi {
 
         let authenticated_user = AuthenticatedUser { id, is_admin };
         let auth_token = authenticated_user
-            .sign_with_key(server_key.0)
+            .sign_with_key(server_key)
             .context("sign jwt")?;
 
         Ok(RegisterUserResponse::Success(PlainText(auth_token)))
@@ -138,17 +140,17 @@ impl UserApi {
     #[oai(path = "/user/login", method = "post")]
     async fn login(
         &self,
-        body: Json<LoginUserBody>,
-        db: Data<&SqlitePool>,
-        server_key: Data<&ServerKey>,
+        Json(body): Json<LoginUserBody>,
+        Data(db): Data<&SqlitePool>,
+        Data(server_key): Data<&ServerKey>,
     ) -> ServerResult<LoginUserResponse> {
-        let LoginUserBody { email, password } = body.0;
+        let LoginUserBody { email, password } = body;
 
         let row = sqlx::query!(
             "SELECT id, hashed_password, is_admin FROM user WHERE email = ?",
             email
         )
-        .fetch_optional(db.0)
+        .fetch_optional(db)
         .await
         .context("fetch user")?;
 
@@ -172,7 +174,7 @@ impl UserApi {
         if is_valid {
             let authenticated_user = AuthenticatedUser { id, is_admin };
             let auth_token = authenticated_user
-                .sign_with_key(server_key.0)
+                .sign_with_key(server_key)
                 .context("sign jwt")?;
 
             Ok(LoginUserResponse::Success(PlainText(auth_token)))

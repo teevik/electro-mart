@@ -1,8 +1,8 @@
-use crate::{error::ServerResult, ApiTags};
+use crate::{error::ServerResult, user::AuthToken, ApiTags};
 use anyhow::Context;
 use chrono::NaiveDateTime;
 use poem::web::Data;
-use poem_openapi::{payload::Json, ApiResponse, Enum, Object, OpenApi};
+use poem_openapi::{param::Path, payload::Json, ApiResponse, Enum, Object, OpenApi};
 use sqlx::SqlitePool;
 
 #[derive(Debug, Enum, sqlx::Type)]
@@ -33,6 +33,8 @@ struct Payment {
 
 #[derive(Debug, Object)]
 struct OrderItem {
+    // >= 1
+    #[oai(validator(minimum(value = "1", exclusive = "false")))]
     pub quantity: i64,
     pub product_id: i64,
 }
@@ -67,10 +69,51 @@ struct Order {
     pub status: OrderStatus,
 }
 
+#[derive(Debug, Object)]
+struct SpecificOrder {
+    pub id: i64,
+    pub order_date: NaiveDateTime,
+    pub total_price: f64,
+    pub status: OrderStatus,
+
+    pub items: Vec<OrderItem>,
+    pub payment: Option<Payment>,
+}
+
+#[derive(ApiResponse)]
+enum OrderByIdResponse {
+    #[oai(status = 200)]
+    Found(Json<SpecificOrder>),
+
+    #[oai(status = 404)]
+    NotFound,
+}
+
+#[derive(Debug, Object)]
+struct OrderBody {
+    pub items: Vec<OrderItem>,
+}
+
 #[derive(ApiResponse)]
 enum CreateOrderResponse {
+    /// Created order, returns the order id
     #[oai(status = 201)]
-    Created(Json<i64>)
+    Created(Json<i64>),
+}
+
+#[derive(ApiResponse)]
+enum DeleteOrderResponse {
+    /// The order has been successfully deleted
+    #[oai(status = 204)]
+    Deleted,
+
+    /// The user is not authorized to delete a order
+    #[oai(status = 401)]
+    Unauthorized,
+
+    /// The order with the given ID does not exist
+    #[oai(status = 404)]
+    NotFound,
 }
 
 pub struct OrderApi;
@@ -97,6 +140,158 @@ impl OrderApi {
         Ok(Json(orders))
     }
 
+    #[oai(path = "/orders/:id", method = "get")]
+    async fn get_order(
+        &self,
+        Path(id): Path<i64>,
+        Data(db): Data<&SqlitePool>,
+    ) -> ServerResult<OrderByIdResponse> {
+        let row = sqlx::query!(
+            "
+                SELECT
+                    `order`.id,
+                    order_date,
+                    total_price,
+                    `order`.status,
+                    payment.payment_method,
+                    payment.payment_date,
+                    payment.amount AS payment_amount,
+                    payment.status AS payment_status
+                FROM `order`
+                LEFT OUTER JOIN payment ON `order`.id = payment.order_id
+                WHERE `order`.id = ?
+            ",
+            id
+        )
+        .fetch_optional(db)
+        .await
+        .context("fetch order")?;
+
+        let Some(row) = row else {
+            return Ok(OrderByIdResponse::NotFound);
+        };
+
+        let items = sqlx::query_as!(
+            OrderItem,
+            "
+                SELECT
+                    quantity,
+                    product_id
+                FROM order_item
+                WHERE order_id = ?
+            ",
+            id
+        )
+        .fetch_all(db)
+        .await
+        .context("fetch order items")?;
+
+        let payment = row.payment_method.map(|payment_method| Payment {
+            payment_method,
+            payment_date: row.payment_date.expect("exists"),
+            amount: row.payment_amount.expect("exists"),
+            status: row.payment_status.expect("exists").into(),
+        });
+
+        let order = SpecificOrder {
+            id: row.id,
+            order_date: row.order_date,
+            total_price: row.total_price,
+            status: row.status.into(),
+            items,
+            payment,
+        };
+
+        Ok(OrderByIdResponse::Found(Json(order)))
+    }
+
     #[oai(path = "/orders", method = "post")]
-    async fn create_order(&self, Data(db): Data<&SqlitePool>) -> ServerResult<CreateOrderResponse> {
+    async fn create_order(
+        &self,
+        Json(order): Json<OrderBody>,
+        AuthToken(user): AuthToken,
+        Data(db): Data<&SqlitePool>,
+    ) -> ServerResult<CreateOrderResponse> {
+        let status = OrderStatus::Pending;
+
+        let mut total_price: f64 = 0.;
+
+        for item in &order.items {
+            let product = sqlx::query!(
+                "
+                    SELECT price
+                    FROM product
+                    WHERE id = ?
+                ",
+                item.product_id
+            )
+            .fetch_one(db)
+            .await
+            .context("fetch product")?;
+
+            total_price += product.price * item.quantity as f64;
+        }
+
+        let inserted_order = sqlx::query!(
+            "
+                INSERT INTO `order` (order_date, total_price, status, user_id)
+                VALUES (DATETIME('now'), ?, ?, ?)
+                RETURNING id
+            ",
+            total_price,
+            status,
+            user.id
+        )
+        .fetch_one(db)
+        .await
+        .context("insert order")?;
+
+        let order_id = inserted_order.id;
+
+        for item in &order.items {
+            sqlx::query!(
+                "
+                    INSERT INTO order_item (quantity, order_id, product_id)
+                    VALUES (?, ?, ?)
+                ",
+                item.quantity,
+                order_id,
+                item.product_id
+            )
+            .execute(db)
+            .await
+            .context("insert order item")?;
+        }
+
+        Ok(CreateOrderResponse::Created(Json(order_id)))
+    }
+
+    #[oai(path = "/orders/:id", method = "delete")]
+    async fn delete_order(
+        &self,
+        Path(id): Path<i64>,
+        AuthToken(user): AuthToken,
+        Data(db): Data<&SqlitePool>,
+    ) -> ServerResult<DeleteOrderResponse> {
+        if !user.is_admin {
+            return Ok(DeleteOrderResponse::Unauthorized);
+        }
+
+        let result = sqlx::query!(
+            "
+                DELETE FROM `order`
+                WHERE id = ?
+            ",
+            id
+        )
+        .execute(db)
+        .await
+        .context("delete order")?;
+
+        if result.rows_affected() == 0 {
+            Ok(DeleteOrderResponse::NotFound)
+        } else {
+            Ok(DeleteOrderResponse::Deleted)
+        }
+    }
 }

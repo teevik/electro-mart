@@ -1,13 +1,14 @@
 mod brand;
 mod category;
 mod error;
-// mod order;
+mod order;
 mod product;
 mod swagger_ui;
 mod user;
 
 use crate::brand::BrandApi;
 use crate::category::CategoryApi;
+use crate::order::OrderApi;
 use crate::product::ProductApi;
 use crate::user::UserApi;
 use anyhow::Context;
@@ -29,34 +30,6 @@ pub enum ApiTags {
     Brand,
     Product,
     Order,
-}
-
-#[derive(Debug, sqlx::FromRow)]
-struct Product {}
-
-#[derive(Debug, sqlx::FromRow)]
-struct Order {
-    id: i32,
-    order_date: String,
-    total_price: f64,
-    // TODO: use enum?
-    status: i32,
-}
-
-#[derive(Debug, sqlx::FromRow)]
-struct OrderItem {
-    id: i32,
-    quantity: i32,
-    price: f64,
-}
-
-#[derive(Debug, sqlx::FromRow)]
-struct Payment {
-    id: i32,
-    payment_method: String,
-    payment_date: String,
-    amount: f64,
-    status: i32,
 }
 
 #[tokio::main]
@@ -83,11 +56,11 @@ async fn main() -> anyhow::Result<()> {
 
     // Start the API service
     let api_service = OpenApiService::new(
-        (UserApi, CategoryApi, BrandApi, ProductApi),
+        (UserApi, CategoryApi, BrandApi, ProductApi, OrderApi),
         "Electro Mart API",
         "1.0",
     )
-    .server("http://localhost:3000/api");
+    .server("/api");
 
     let ui = swagger_ui::create_endpoint(&api_service.spec());
 

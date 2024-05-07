@@ -74,7 +74,7 @@ async fn main() -> anyhow::Result<()> {
 
     println!("Listening on http://localhost:3000");
 
-    let listener = TcpListener::bind("0.0.0.0:3000");
+    let listener = TcpListener::bind("[::]:3000");
     poem::Server::new(listener)
         .run(app)
         .await

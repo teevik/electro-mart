@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                INSERT INTO payment (order_id, payment_method, status, payment_date)\n                VALUES (?, ?, ?, DATETIME('now'))\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "818d131e14559161af24651a338b2948e16a6c0d983f3e7d4107f93e1bc90d08"
+}

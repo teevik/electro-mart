@@ -1,0 +1,13 @@
+# flyctl launch added from .gitignore
+**/target
+**/database.sqlite
+**/database.sqlite-shm
+**/database.sqlite-wal
+**/.secrets
+fly.toml
+
+.env
+.envrc
+
+# Dont use mold
+.cargo/config.toml

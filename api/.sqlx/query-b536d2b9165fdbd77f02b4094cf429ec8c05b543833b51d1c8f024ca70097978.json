@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                SELECT\n                    quantity,\n                    product_id\n                FROM order_item\n                WHERE order_id = ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "quantity",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "product_id",
+        "ordinal": 1,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "b536d2b9165fdbd77f02b4094cf429ec8c05b543833b51d1c8f024ca70097978"
+}

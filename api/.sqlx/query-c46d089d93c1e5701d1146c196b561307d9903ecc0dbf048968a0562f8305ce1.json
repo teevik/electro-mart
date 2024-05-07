@@ -1,0 +1,56 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                SELECT\n                    `order`.id,\n                    order_date,\n                    total_price,\n                    `order`.status,\n                    payment.payment_method,\n                    payment.payment_date,\n                    payment.status AS payment_status\n                FROM `order`\n                LEFT OUTER JOIN payment ON `order`.id = payment.order_id\n                WHERE `order`.id = ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "order_date",
+        "ordinal": 1,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "total_price",
+        "ordinal": 2,
+        "type_info": "Float"
+      },
+      {
+        "name": "status",
+        "ordinal": 3,
+        "type_info": "Int64"
+      },
+      {
+        "name": "payment_method",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "payment_date",
+        "ordinal": 5,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "payment_status",
+        "ordinal": 6,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "c46d089d93c1e5701d1146c196b561307d9903ecc0dbf048968a0562f8305ce1"
+}

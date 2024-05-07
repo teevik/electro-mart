@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                    INSERT INTO order_item (quantity, order_id, product_id)\n                    VALUES (?, ?, ?)\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "7c3ad43bb4b4b94af8cc9991a1246082d82d44cb71b16baad4c850ae28ed7626"
+}

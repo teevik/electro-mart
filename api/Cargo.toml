@@ -1,6 +1,5 @@
-cargo-features = ["codegen-backend"]
 [package]
-name = "api"
+name = "electro-mart-api"
 version = "0.1.0"
 edition = "2021"
 
@@ -24,7 +23,3 @@ jwt = "0.16"
 sha2 = "0.10"
 hmac = "0.12"
 argon2 = "0.5"
-
-[profile.dev]
-debug = 0
-codegen-backend = "cranelift"

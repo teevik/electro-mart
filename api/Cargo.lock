@@ -102,26 +102,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f538837af36e6f6a9be0faa67f9a314f8119e4e4b5867c6ab40ed60360142519"
 
 [[package]]
-name = "api"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "argon2",
- "chrono",
- "hmac",
- "jwt",
- "poem",
- "poem-openapi",
- "serde",
- "sha2",
- "sqlx",
- "swagger-ui",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "argon2"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -488,6 +468,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a47c1c47d2f5964e29c61246e81db715514cd532db6b5116a25ea3c03d6780a2"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "electro-mart-api"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "argon2",
+ "chrono",
+ "hmac",
+ "jwt",
+ "poem",
+ "poem-openapi",
+ "serde",
+ "sha2",
+ "sqlx",
+ "swagger-ui",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

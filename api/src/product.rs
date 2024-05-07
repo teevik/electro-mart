@@ -1,4 +1,4 @@
-use crate::{brand::Brand, category::Category, error::ServerResult, user::AuthToken, ApiTags};
+use crate::{auth::AuthToken, brand::Brand, category::Category, error::ServerResult, ApiTags};
 use anyhow::Context;
 use chrono::NaiveDateTime;
 use poem::web::Data;
@@ -283,7 +283,7 @@ impl ProductApi {
         AuthToken(user): AuthToken,
         Data(db): Data<&SqlitePool>,
     ) -> ServerResult<CreateProductResponse> {
-        if !user.is_admin {
+        if !user.is_admin(db).await? {
             return Ok(CreateProductResponse::Unauthorized);
         }
 
@@ -316,7 +316,7 @@ impl ProductApi {
         AuthToken(user): AuthToken,
         Data(db): Data<&SqlitePool>,
     ) -> ServerResult<UpdateProductResponse> {
-        if !user.is_admin {
+        if !user.is_admin(db).await? {
             return Ok(UpdateProductResponse::Unauthorized);
         }
 
@@ -358,7 +358,7 @@ impl ProductApi {
         AuthToken(user): AuthToken,
         Data(db): Data<&SqlitePool>,
     ) -> ServerResult<DeleteProductResponse> {
-        if !user.is_admin {
+        if !user.is_admin(db).await? {
             return Ok(DeleteProductResponse::Unauthorized);
         }
 

@@ -1,4 +1,4 @@
-use crate::{error::ServerResult, user::AuthToken, ApiTags};
+use crate::{auth::AuthToken, error::ServerResult, ApiTags};
 use anyhow::Context;
 use poem::web::Data;
 use poem_openapi::{param::Path, payload::Json, ApiResponse, Object, OpenApi};
@@ -112,7 +112,7 @@ impl CategoryApi {
         Data(db): Data<&SqlitePool>,
         AuthToken(user): AuthToken,
     ) -> ServerResult<CreateCategoryResponse> {
-        if !user.is_admin {
+        if !user.is_admin(db).await? {
             return Ok(CreateCategoryResponse::Unauthorized);
         }
 
@@ -136,7 +136,7 @@ impl CategoryApi {
         Data(db): Data<&SqlitePool>,
         AuthToken(user): AuthToken,
     ) -> ServerResult<UpdateCategoryResponse> {
-        if !user.is_admin {
+        if !user.is_admin(db).await? {
             return Ok(UpdateCategoryResponse::Unauthorized);
         }
 
@@ -160,7 +160,7 @@ impl CategoryApi {
         Data(db): Data<&SqlitePool>,
         AuthToken(user): AuthToken,
     ) -> ServerResult<DeleteCategoryResponse> {
-        if !user.is_admin {
+        if !user.is_admin(db).await? {
             return Ok(DeleteCategoryResponse::Unauthorized);
         }
 

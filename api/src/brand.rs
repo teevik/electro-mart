@@ -1,4 +1,4 @@
-use crate::{error::ServerResult, user::AuthToken, ApiTags};
+use crate::{auth::AuthToken, error::ServerResult, ApiTags};
 use anyhow::Context;
 use poem::web::Data;
 use poem_openapi::{param::Path, payload::Json, ApiResponse, Object, OpenApi};
@@ -109,7 +109,7 @@ impl BrandApi {
         Data(db): Data<&SqlitePool>,
         AuthToken(user): AuthToken,
     ) -> ServerResult<CreateBrandResponse> {
-        if !user.is_admin {
+        if !user.is_admin(db).await? {
             return Ok(CreateBrandResponse::Unauthorized);
         }
 
@@ -133,7 +133,7 @@ impl BrandApi {
         Data(db): Data<&SqlitePool>,
         AuthToken(user): AuthToken,
     ) -> ServerResult<UpdateBrandResponse> {
-        if !user.is_admin {
+        if !user.is_admin(db).await? {
             return Ok(UpdateBrandResponse::Unauthorized);
         }
 
@@ -157,7 +157,7 @@ impl BrandApi {
         Data(db): Data<&SqlitePool>,
         AuthToken(user): AuthToken,
     ) -> ServerResult<DeleteBrandResponse> {
-        if !user.is_admin {
+        if !user.is_admin(db).await? {
             return Ok(DeleteBrandResponse::Unauthorized);
         }
 

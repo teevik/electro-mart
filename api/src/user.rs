@@ -1,43 +1,39 @@
-use crate::{error::ServerResult, ApiTags, ServerKey};
+use crate::{auth::AuthenticatedUser, error::ServerResult, ApiTags, ServerKey};
 use anyhow::Context;
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
     Argon2, PasswordHash, PasswordVerifier,
 };
-use jwt::{SignWithKey, VerifyWithKey};
-use poem::{web::Data, Request};
+use poem::web::Data;
 use poem_openapi::{
-    auth::Bearer,
     payload::{Json, PlainText},
-    ApiResponse, Object, OpenApi, SecurityScheme,
+    ApiResponse, Object, OpenApi,
 };
-use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AuthenticatedUser {
-    pub id: i64,
-    pub is_admin: bool,
+fn hash_password(password: &str) -> ServerResult<String> {
+    let password_salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let hashed_passowrd = argon2
+        .hash_password(password.as_bytes(), &password_salt)
+        .map_err(|err| anyhow::anyhow!(err))
+        .context("hash password")?
+        .to_string();
+
+    Ok(hashed_passowrd)
 }
 
-/// Authentication token that gets decoded to `AuthenticatedUser`
-#[derive(SecurityScheme)]
-#[oai(
-    ty = "bearer",
-    key_name = "Authorization",
-    key_in = "header",
-    checker = "auth_checker"
-)]
-pub struct AuthToken(pub AuthenticatedUser);
+fn verify_password(password: &str, hashed_password: &str) -> ServerResult<bool> {
+    let hashed_password = PasswordHash::new(hashed_password)
+        .map_err(|err| anyhow::anyhow!(err))
+        .context("parse password hash")?;
 
-/// Verify JWT token
-async fn auth_checker(request: &Request, token: Bearer) -> Option<AuthenticatedUser> {
-    let server_key = request.data::<ServerKey>().expect("defined server key");
+    let argon2 = Argon2::default();
+    let is_valid = argon2
+        .verify_password(password.as_bytes(), &hashed_password)
+        .is_ok();
 
-    let token = token.token.as_str();
-    let result = VerifyWithKey::<AuthenticatedUser>::verify_with_key(token, server_key);
-
-    result.ok()
+    Ok(is_valid)
 }
 
 #[derive(Debug, Object)]
@@ -109,30 +105,21 @@ impl UserApi {
             return Ok(RegisterUserResponse::Conflict);
         }
 
-        let password_salt = SaltString::generate(&mut OsRng);
-        let argon2 = Argon2::default();
-        let hashed_passowrd = argon2
-            .hash_password(password.as_bytes(), &password_salt)
-            .map_err(|err| anyhow::anyhow!(err))
-            .context("hash password")?
-            .to_string();
+        let hashed_passowrd = hash_password(&password)?;
 
         let row = sqlx::query!("
                 INSERT INTO user (email, hashed_password, first_name, last_name, street, postal_code, city)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-                returning id, is_admin
+                returning id
             ", email, hashed_passowrd, first_name, last_name, street, postal_code, city)
             .fetch_one(db)
             .await
             .context("insert user")?;
 
         let id = row.id;
-        let is_admin = row.is_admin != 0;
 
-        let authenticated_user = AuthenticatedUser { id, is_admin };
-        let auth_token = authenticated_user
-            .sign_with_key(server_key)
-            .context("sign jwt")?;
+        let authenticated_user = AuthenticatedUser { id };
+        let auth_token = authenticated_user.sign(server_key)?;
 
         Ok(RegisterUserResponse::Success(PlainText(auth_token)))
     }
@@ -147,7 +134,7 @@ impl UserApi {
         let LoginUserBody { email, password } = body;
 
         let row = sqlx::query!(
-            "SELECT id, hashed_password, is_admin FROM user WHERE email = ?",
+            "SELECT id, hashed_password FROM user WHERE email = ?",
             email
         )
         .fetch_optional(db)
@@ -159,23 +146,11 @@ impl UserApi {
         };
 
         let id = row.id;
-        let hashed_password = row.hashed_password;
-        let is_admin = row.is_admin != 0;
+        let password_is_correct = verify_password(&password, &row.hashed_password)?;
 
-        let hashed_password = PasswordHash::new(&hashed_password)
-            .map_err(|err| anyhow::anyhow!(err))
-            .context("parse password hash")?;
-
-        let argon2 = Argon2::default();
-        let is_valid = argon2
-            .verify_password(password.as_bytes(), &hashed_password)
-            .is_ok();
-
-        if is_valid {
-            let authenticated_user = AuthenticatedUser { id, is_admin };
-            let auth_token = authenticated_user
-                .sign_with_key(server_key)
-                .context("sign jwt")?;
+        if password_is_correct {
+            let authenticated_user = AuthenticatedUser { id };
+            let auth_token = authenticated_user.sign(server_key)?;
 
             Ok(LoginUserResponse::Success(PlainText(auth_token)))
         } else {

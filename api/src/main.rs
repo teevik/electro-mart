@@ -1,3 +1,4 @@
+mod auth;
 mod brand;
 mod category;
 mod error;

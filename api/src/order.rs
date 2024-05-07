@@ -1,4 +1,4 @@
-use crate::{error::ServerResult, user::AuthToken, ApiTags};
+use crate::{auth::AuthToken, error::ServerResult, ApiTags};
 use anyhow::Context;
 use chrono::NaiveDateTime;
 use poem::web::Data;
@@ -340,7 +340,7 @@ impl OrderApi {
         AuthToken(user): AuthToken,
         Data(db): Data<&SqlitePool>,
     ) -> ServerResult<DeleteOrderResponse> {
-        if !user.is_admin {
+        if !user.is_admin(db).await? {
             return Ok(DeleteOrderResponse::Unauthorized);
         }
 

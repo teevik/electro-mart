@@ -5,7 +5,7 @@ use poem::web::Data;
 use poem_openapi::{
     param::{Path, Query},
     payload::Json,
-    ApiResponse, Enum, Object, OpenApi, Tags,
+    ApiResponse, Enum, Object, OpenApi,
 };
 use sqlx::SqlitePool;
 use std::fmt::{self, Display, Formatter};

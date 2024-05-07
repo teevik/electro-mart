@@ -1,18 +1,9 @@
+mod apis;
 mod auth;
-mod brand;
-mod category;
 mod error;
-mod order;
 mod password;
-mod product;
 mod swagger_ui;
-mod user;
 
-use crate::brand::BrandApi;
-use crate::category::CategoryApi;
-use crate::order::OrderApi;
-use crate::product::ProductApi;
-use crate::user::UserApi;
 use anyhow::Context;
 use hmac::digest::KeyInit;
 use hmac::Hmac;
@@ -22,6 +13,12 @@ use poem_openapi::{OpenApiService, Tags};
 use sha2::Sha256;
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
 use std::env;
+
+use crate::apis::brand::BrandApi;
+use crate::apis::category::CategoryApi;
+use crate::apis::order::OrderApi;
+use crate::apis::product::ProductApi;
+use crate::apis::user::UserApi;
 
 pub type ServerKey = Hmac<Sha256>;
 

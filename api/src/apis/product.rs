@@ -1,4 +1,4 @@
-use crate::{auth::AuthToken, brand::Brand, category::Category, error::ServerResult, ApiTags};
+use crate::{auth::AuthToken, error::ServerResult, ApiTags};
 use anyhow::Context;
 use chrono::NaiveDateTime;
 use poem::web::Data;
@@ -9,6 +9,8 @@ use poem_openapi::{
 };
 use sqlx::SqlitePool;
 use std::fmt::{self, Display, Formatter};
+
+use super::{brand::Brand, category::Category};
 
 #[derive(Debug, Object)]
 struct Product {

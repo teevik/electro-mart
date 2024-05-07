@@ -1,9 +1,10 @@
-use crate::{auth::AuthenticatedUser, error::ServerResult, ApiTags, ServerKey};
-use anyhow::Context;
-use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
-    Argon2, PasswordHash, PasswordVerifier,
+use crate::{
+    auth::AuthenticatedUser,
+    error::ServerResult,
+    password::{hash_password, verify_password},
+    ApiTags, ServerKey,
 };
+use anyhow::Context;
 use poem::web::Data;
 use poem_openapi::{
     payload::{Json, PlainText},
@@ -11,31 +12,6 @@ use poem_openapi::{
     ApiResponse, Object, OpenApi,
 };
 use sqlx::SqlitePool;
-
-fn hash_password(password: &str) -> ServerResult<String> {
-    let password_salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
-    let hashed_passowrd = argon2
-        .hash_password(password.as_bytes(), &password_salt)
-        .map_err(|err| anyhow::anyhow!(err))
-        .context("hash password")?
-        .to_string();
-
-    Ok(hashed_passowrd)
-}
-
-fn verify_password(password: &str, hashed_password: &str) -> ServerResult<bool> {
-    let hashed_password = PasswordHash::new(hashed_password)
-        .map_err(|err| anyhow::anyhow!(err))
-        .context("parse password hash")?;
-
-    let argon2 = Argon2::default();
-    let is_valid = argon2
-        .verify_password(password.as_bytes(), &hashed_password)
-        .is_ok();
-
-    Ok(is_valid)
-}
 
 #[derive(Debug, Object)]
 struct ReigsterUserBody {
@@ -119,7 +95,7 @@ impl UserApi {
             return Ok(RegisterUserResponse::Conflict);
         }
 
-        let hashed_passowrd = hash_password(&password)?;
+        let hashed_passowrd = hash_password(password).await?;
 
         let row = sqlx::query!("
                 INSERT INTO user (email, hashed_password, first_name, last_name, street, postal_code, city, is_admin)
@@ -163,7 +139,7 @@ impl UserApi {
         };
 
         let id = row.id;
-        let password_is_correct = verify_password(&password, &row.hashed_password)?;
+        let password_is_correct = verify_password(password, row.hashed_password).await?;
 
         if password_is_correct {
             let authenticated_user = AuthenticatedUser { id };

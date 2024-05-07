@@ -3,6 +3,7 @@ mod brand;
 mod category;
 mod error;
 mod order;
+mod password;
 mod product;
 mod swagger_ui;
 mod user;

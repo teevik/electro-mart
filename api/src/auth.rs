@@ -6,6 +6,7 @@ use poem_openapi::{auth::Bearer, SecurityScheme};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
+/// A user that has been authenticated from a JWT token
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AuthenticatedUser {
     pub id: i64,

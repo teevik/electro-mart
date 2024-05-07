@@ -1,0 +1,86 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                SELECT\n                    product.id,\n                    product.name,\n                    product.description,\n                    price,\n                    stock_quantity,\n                    created_at,\n                    brand.id AS brand_id,\n                    brand.name AS brand_name,\n                    brand.description AS brand_description,\n                    category.id AS category_id,\n                    category.name AS category_name,\n                    category.description AS category_description\n                FROM product\n                INNER JOIN brand ON product.brand_id = brand.id\n                INNER JOIN category ON product.category_id = category.id\n                WHERE\n                    product.name LIKE '%' || $1 || '%'\n                ORDER BY\n                    (CASE WHEN $3 = 'Ascending' THEN CASE $2\n                        WHEN 'Created' THEN product.created_at\n                        WHEN 'Price' THEN product.price\n                        WHEN 'Name' THEN product.name\n                    END END) ASC,\n                    (CASE WHEN $3 = 'Descending' THEN CASE $2\n                        WHEN 'Created' THEN product.created_at\n                        WHEN 'Price' THEN product.price\n                        WHEN 'Name' THEN product.name\n                    END END) DESC\n                    LIMIT $4 OFFSET $5\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "description",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "price",
+        "ordinal": 3,
+        "type_info": "Float"
+      },
+      {
+        "name": "stock_quantity",
+        "ordinal": 4,
+        "type_info": "Int64"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 5,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "brand_id",
+        "ordinal": 6,
+        "type_info": "Int64"
+      },
+      {
+        "name": "brand_name",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "brand_description",
+        "ordinal": 8,
+        "type_info": "Text"
+      },
+      {
+        "name": "category_id",
+        "ordinal": 9,
+        "type_info": "Int64"
+      },
+      {
+        "name": "category_name",
+        "ordinal": 10,
+        "type_info": "Text"
+      },
+      {
+        "name": "category_description",
+        "ordinal": 11,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "9997ca9bc94d5504ff6a4c735cc214df5acd048e129b8d5e2898374df345cbb6"
+}

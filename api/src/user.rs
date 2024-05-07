@@ -45,6 +45,8 @@ struct ReigsterUserBody {
     pub street: String,
     pub postal_code: String,
     pub city: String,
+    /// Make new user admin, ONLY for testing purposes, would be removed in a real application
+    pub is_admin: bool,
 }
 
 #[derive(ApiResponse)]

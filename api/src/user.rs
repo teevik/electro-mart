@@ -96,6 +96,7 @@ impl UserApi {
             street,
             postal_code,
             city,
+            is_admin,
         } = body;
 
         let existing_user = sqlx::query!("SELECT email FROM user WHERE email = ?", email)
@@ -110,10 +111,10 @@ impl UserApi {
         let hashed_passowrd = hash_password(&password)?;
 
         let row = sqlx::query!("
-                INSERT INTO user (email, hashed_password, first_name, last_name, street, postal_code, city)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO user (email, hashed_password, first_name, last_name, street, postal_code, city, is_admin)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 returning id
-            ", email, hashed_passowrd, first_name, last_name, street, postal_code, city)
+            ", email, hashed_passowrd, first_name, last_name, street, postal_code, city, is_admin)
             .fetch_one(db)
             .await
             .context("insert user")?;

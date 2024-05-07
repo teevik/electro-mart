@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                INSERT INTO user (email, hashed_password, first_name, last_name, street, postal_code, city, is_admin)\n                VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n                returning id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 8
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "bce31ed7d37c5836ba21098df850a97e2cf20f44f7d5de58d3c239ae261f587b"
+}

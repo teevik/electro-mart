@@ -141,6 +141,8 @@ impl ProductApi {
     #[oai(path = "/products", method = "get")]
     async fn all_products(
         &self,
+        /// Search products by name
+        Query(search): Query<Option<String>>,
         /// Sort products
         #[oai(default = "default_sort_by")]
         Query(sort_by): Query<SortBy>,
@@ -155,6 +157,7 @@ impl ProductApi {
         Query(skip): Query<i64>,
         Data(db): Data<&SqlitePool>,
     ) -> ServerResult<Json<Vec<Product>>> {
+        let search = search.unwrap_or_default();
         let sort_by = sort_by.to_string();
         let sort_direction = sort_direction.to_string();
 
@@ -176,19 +179,22 @@ impl ProductApi {
                 FROM product
                 INNER JOIN brand ON product.brand_id = brand.id
                 INNER JOIN category ON product.category_id = category.id
+                WHERE
+                    product.name LIKE '%' || $1 || '%'
                 ORDER BY
-                    (CASE WHEN $2 = 'Ascending' THEN CASE $1
+                    (CASE WHEN $3 = 'Ascending' THEN CASE $2
                         WHEN 'Created' THEN product.created_at
                         WHEN 'Price' THEN product.price
                         WHEN 'Name' THEN product.name
                     END END) ASC,
-                    (CASE WHEN $2 = 'Descending' THEN CASE $1
+                    (CASE WHEN $3 = 'Descending' THEN CASE $2
                         WHEN 'Created' THEN product.created_at
                         WHEN 'Price' THEN product.price
                         WHEN 'Name' THEN product.name
                     END END) DESC
-                    LIMIT $3 OFFSET $4
+                    LIMIT $4 OFFSET $5
             ",
+            search,
             sort_by,
             sort_direction,
             take,

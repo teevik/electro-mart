@@ -22,7 +22,9 @@ enum BrandByIdResponse {
 
 #[derive(Debug, Object)]
 pub struct BrandBody {
+    #[oai(validator(min_length = 1, max_length = 255))]
     pub name: String,
+    #[oai(validator(min_length = 1, max_length = 65535))]
     pub description: Option<String>,
 }
 

@@ -7,6 +7,7 @@ use argon2::{
 use poem::web::Data;
 use poem_openapi::{
     payload::{Json, PlainText},
+    types::{Email, Password},
     ApiResponse, Object, OpenApi,
 };
 use sqlx::SqlitePool;
@@ -38,12 +39,19 @@ fn verify_password(password: &str, hashed_password: &str) -> ServerResult<bool> 
 
 #[derive(Debug, Object)]
 struct ReigsterUserBody {
-    pub email: String,
-    pub password: String,
+    #[oai(validator(min_length = 1, max_length = 255))]
+    pub email: Email,
+    #[oai(validator(min_length = 1, max_length = 255))]
+    pub password: Password,
+    #[oai(validator(min_length = 1, max_length = 255))]
     pub first_name: String,
+    #[oai(validator(min_length = 1, max_length = 255))]
     pub last_name: String,
+    #[oai(validator(min_length = 1, max_length = 255))]
     pub street: String,
+    #[oai(validator(min_length = 1, max_length = 255))]
     pub postal_code: String,
+    #[oai(validator(min_length = 1, max_length = 255))]
     pub city: String,
     /// Make new user admin, ONLY for testing purposes, would be removed in a real application
     pub is_admin: bool,
@@ -62,8 +70,8 @@ enum RegisterUserResponse {
 
 #[derive(Debug, Object)]
 struct LoginUserBody {
-    pub email: String,
-    pub password: String,
+    pub email: Email,
+    pub password: Password,
 }
 
 #[derive(ApiResponse)]
@@ -98,6 +106,9 @@ impl UserApi {
             city,
             is_admin,
         } = body;
+
+        let Email(email) = email;
+        let Password(password) = password;
 
         let existing_user = sqlx::query!("SELECT email FROM user WHERE email = ?", email)
             .fetch_optional(db)
@@ -135,6 +146,9 @@ impl UserApi {
         Data(server_key): Data<&ServerKey>,
     ) -> ServerResult<LoginUserResponse> {
         let LoginUserBody { email, password } = body;
+
+        let Email(email) = email;
+        let Password(password) = password;
 
         let row = sqlx::query!(
             "SELECT id, hashed_password FROM user WHERE email = ?",

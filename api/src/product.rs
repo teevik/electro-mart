@@ -24,9 +24,13 @@ struct Product {
 
 #[derive(Debug, Object)]
 struct ProductBody {
+    #[oai(validator(min_length = 1, max_length = 255))]
     name: String,
+    #[oai(validator(min_length = 1, max_length = 65535))]
     description: String,
+    #[oai(validator(minimum(value = "0", exclusive = "false")))]
     price: f64,
+    #[oai(validator(minimum(value = "0", exclusive = "false")))]
     stock_quantity: i64,
     brand_id: i64,
     category_id: i64,

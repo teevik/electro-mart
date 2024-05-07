@@ -102,6 +102,7 @@ enum CreateOrderResponse {
 
 #[derive(Debug, Object)]
 struct PaymentBody {
+    #[oai(validator(min_length = 1, max_length = 255))]
     pub payment_method: String,
 }
 

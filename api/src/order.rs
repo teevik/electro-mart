@@ -334,6 +334,7 @@ impl OrderApi {
         Ok(PayResponse::Paid)
     }
 
+    /// ADMIN
     #[oai(path = "/orders/:id", method = "delete")]
     async fn delete_order(
         &self,

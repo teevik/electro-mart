@@ -104,6 +104,7 @@ impl BrandApi {
         })
     }
 
+    /// ADMIN
     #[oai(path = "/brands", method = "post")]
     async fn create_brand(
         &self,
@@ -127,6 +128,7 @@ impl BrandApi {
         Ok(CreateBrandResponse::Created(Json(inserted.id)))
     }
 
+    /// ADMIN
     #[oai(path = "/brands/:id", method = "put")]
     async fn update_brand(
         &self,
@@ -152,6 +154,7 @@ impl BrandApi {
         Ok(UpdateBrandResponse::Updated)
     }
 
+    /// ADMIN
     #[oai(path = "/brands/:id", method = "delete")]
     async fn delete_brand(
         &self,

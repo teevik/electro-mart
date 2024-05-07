@@ -5,7 +5,7 @@ use poem::web::Data;
 use poem_openapi::{
     param::{Path, Query},
     payload::Json,
-    ApiResponse, Enum, Object, OpenApi,
+    ApiResponse, Enum, Object, OpenApi, Tags,
 };
 use sqlx::SqlitePool;
 use std::fmt::{self, Display, Formatter};
@@ -280,6 +280,7 @@ impl ProductApi {
         })
     }
 
+    /// ADMIN
     #[oai(path = "/products", method = "post")]
     async fn create_product(
         &self,
@@ -312,6 +313,7 @@ impl ProductApi {
         Ok(CreateProductResponse::Created(Json(inserted.id)))
     }
 
+    /// ADMIN
     #[oai(path = "/products/:id", method = "put")]
     async fn update_product(
         &self,
@@ -355,6 +357,7 @@ impl ProductApi {
         Ok(UpdateProductResponse::Updated)
     }
 
+    /// ADMIN
     #[oai(path = "/products/:id", method = "delete")]
     async fn delete_product(
         &self,

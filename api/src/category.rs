@@ -107,6 +107,7 @@ impl CategoryApi {
         })
     }
 
+    /// ADMIN
     #[oai(path = "/categories", method = "post")]
     async fn create_category(
         &self,
@@ -130,6 +131,7 @@ impl CategoryApi {
         Ok(CreateCategoryResponse::Created(Json(inserted.id)))
     }
 
+    /// ADMIN
     #[oai(path = "/categories/:id", method = "put")]
     async fn update_category(
         &self,
@@ -155,6 +157,7 @@ impl CategoryApi {
         Ok(UpdateCategoryResponse::Updated)
     }
 
+    /// ADMIN
     #[oai(path = "/categories/:id", method = "delete")]
     async fn delete_category(
         &self,

@@ -59,7 +59,6 @@ CREATE TABLE `payment` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     `payment_method` TEXT NOT NULL,
     `payment_date` DATETIME NOT NULL,
-    `amount` REAL NOT NULL,
     `status` INTEGER NOT NULL,
     `order_id` INTEGER NOT NULL,
     FOREIGN KEY (`order_id`) REFERENCES `order`(`id`) ON DELETE CASCADE

@@ -27,7 +27,6 @@ impl From<i64> for PaymentStatus {
 struct Payment {
     pub payment_method: String,
     pub payment_date: NaiveDateTime,
-    pub amount: f64,
     pub status: PaymentStatus,
 }
 
@@ -101,6 +100,26 @@ enum CreateOrderResponse {
     Created(Json<i64>),
 }
 
+#[derive(Debug, Object)]
+struct PaymentBody {
+    pub payment_method: String,
+}
+
+#[derive(ApiResponse)]
+enum PayResponse {
+    /// Payment successful
+    #[oai(status = 201)]
+    Paid,
+
+    /// Payment failed, the order is already paid for
+    #[oai(status = 400)]
+    PaymentAlreadyDone,
+
+    /// Order not found
+    #[oai(status = 404)]
+    NotFound,
+}
+
 #[derive(ApiResponse)]
 enum DeleteOrderResponse {
     /// The order has been successfully deleted
@@ -155,7 +174,6 @@ impl OrderApi {
                     `order`.status,
                     payment.payment_method,
                     payment.payment_date,
-                    payment.amount AS payment_amount,
                     payment.status AS payment_status
                 FROM `order`
                 LEFT OUTER JOIN payment ON `order`.id = payment.order_id
@@ -189,7 +207,6 @@ impl OrderApi {
         let payment = row.payment_method.map(|payment_method| Payment {
             payment_method,
             payment_date: row.payment_date.expect("exists"),
-            amount: row.payment_amount.expect("exists"),
             status: row.payment_status.expect("exists").into(),
         });
 
@@ -264,6 +281,56 @@ impl OrderApi {
         }
 
         Ok(CreateOrderResponse::Created(Json(order_id)))
+    }
+
+    #[oai(path = "/orders/:id/pay", method = "post")]
+    async fn pay_order(
+        &self,
+        Path(id): Path<i64>,
+        Json(payment): Json<PaymentBody>,
+        AuthToken(user): AuthToken,
+        Data(db): Data<&SqlitePool>,
+    ) -> ServerResult<PayResponse> {
+        let order_id = id;
+
+        let order = sqlx::query!(
+            "
+                SELECT
+                    `order`.status,
+                    payment.status AS payment_status
+                FROM `order`
+                LEFT JOIN payment ON `order`.id = payment.order_id
+                WHERE `order`.id = ? AND `order`.user_id = ?
+            ",
+            order_id,
+            user.id
+        )
+        .fetch_optional(db)
+        .await
+        .context("fetch order")?;
+
+        let Some(order) = order else {
+            return Ok(PayResponse::NotFound);
+        };
+
+        if order.payment_status.is_some() {
+            return Ok(PayResponse::PaymentAlreadyDone);
+        }
+
+        sqlx::query!(
+            "
+                INSERT INTO payment (order_id, payment_method, status, payment_date)
+                VALUES (?, ?, ?, DATETIME('now'))
+            ",
+            order_id,
+            payment.payment_method,
+            PaymentStatus::Pending
+        )
+        .execute(db)
+        .await
+        .context("insert payment")?;
+
+        Ok(PayResponse::Paid)
     }
 
     #[oai(path = "/orders/:id", method = "delete")]

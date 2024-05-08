@@ -8,6 +8,3 @@ fly.toml
 
 .env
 .envrc
-
-# Dont use mold
-.cargo/config.toml

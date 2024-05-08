@@ -7,6 +7,7 @@ mod swagger_ui;
 use anyhow::Context;
 use hmac::digest::KeyInit;
 use hmac::Hmac;
+use poem::middleware::Cors;
 use poem::Route;
 use poem::{listener::TcpListener, EndpointExt};
 use poem_openapi::{OpenApiService, Tags};
@@ -67,6 +68,7 @@ async fn main() -> anyhow::Result<()> {
         .at("/openapi.json", api_service.spec_endpoint())
         .nest("/api", api_service)
         .nest("/", ui)
+        .with(Cors::new())
         .data(db_pool)
         .data(server_key);
 

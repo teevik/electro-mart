@@ -1,17 +1,22 @@
-# Builder
-FROM rust:1.78-alpine as builder
+# Build using cargo-chef, to cache dependencies
+FROM rust:1.78-alpine as chef
+RUN cargo install cargo-chef
+
 WORKDIR /app
 
-COPY Cargo.lock .
-COPY Cargo.toml .
 
-# Cache dependencies in a layer before copying the source code
-RUN mkdir .cargo
-RUN cargo vendor > .cargo/config
-
+FROM chef AS planner
 COPY . .
+
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef AS builder
 RUN apk add --no-cache musl-dev
-RUN cargo build --bin electro-mart-api --release
+
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json
+COPY . .
+RUN cargo build --bin electro-mart-api --release --target x86_64-unknown-linux-musl
 
 # Runtime
 FROM scratch as runtime

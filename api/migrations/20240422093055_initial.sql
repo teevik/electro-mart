@@ -28,6 +28,7 @@ CREATE TABLE `product` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     `name` TEXT NOT NULL,
     `description` TEXT NOT NULL,
+    `image_url` TEXT NOT NULL,
     `price` REAL NOT NULL,
     `stock_quantity` INTEGER NOT NULL,
     `created_at` DATETIME NOT NULL,

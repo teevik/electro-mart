@@ -37,7 +37,6 @@ const SWAGGER_UI_TEMPLATE: &str = r#"
         oauth2RedirectUrl: oauth2RedirectUrl,
         deepLinking: true,
         persistAuthorization: true,
-        tryItOutEnabled: true,
     })
 </script>
 

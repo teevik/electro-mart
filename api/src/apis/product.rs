@@ -1,3 +1,4 @@
+use super::{brand::Brand, category::Category};
 use crate::{auth::AuthToken, error::ServerResult, ApiTags};
 use anyhow::Context;
 use chrono::NaiveDateTime;
@@ -10,18 +11,17 @@ use poem_openapi::{
 use sqlx::SqlitePool;
 use std::fmt::{self, Display, Formatter};
 
-use super::{brand::Brand, category::Category};
-
 #[derive(Debug, Object)]
 struct Product {
-    pub id: i64,
-    pub name: String,
-    pub description: String,
-    pub price: f64,
-    pub stock_quantity: i64,
-    pub created_at: NaiveDateTime,
-    pub brand: Brand,
-    pub category: Category,
+    id: i64,
+    name: String,
+    description: String,
+    image_url: String,
+    price: f64,
+    stock_quantity: i64,
+    created_at: NaiveDateTime,
+    brand: Brand,
+    category: Category,
 }
 
 #[derive(Debug, Object)]
@@ -30,6 +30,8 @@ struct ProductBody {
     name: String,
     #[oai(validator(min_length = 1, max_length = 65535))]
     description: String,
+    #[oai(validator(min_length = 1, max_length = 255))]
+    image_url: String,
     #[oai(validator(minimum(value = "0", exclusive = "false")))]
     price: f64,
     #[oai(validator(minimum(value = "0", exclusive = "false")))]
@@ -169,6 +171,7 @@ impl ProductApi {
                     product.id,
                     product.name,
                     product.description,
+                    image_url,
                     price,
                     stock_quantity,
                     created_at,
@@ -212,6 +215,7 @@ impl ProductApi {
                 id: product.id,
                 name: product.name,
                 description: product.description,
+                image_url: product.image_url,
                 price: product.price,
                 stock_quantity: product.stock_quantity,
                 created_at: product.created_at,
@@ -243,6 +247,7 @@ impl ProductApi {
                     product.id,
                     product.name,
                     product.description,
+                    image_url,
                     price,
                     stock_quantity,
                     created_at,
@@ -267,6 +272,7 @@ impl ProductApi {
             id: product.id,
             name: product.name,
             description: product.description,
+            image_url: product.image_url,
             price: product.price,
             stock_quantity: product.stock_quantity,
             created_at: product.created_at,
@@ -302,15 +308,15 @@ impl ProductApi {
 
         let inserted = sqlx::query!(
             "
-                INSERT INTO product (name, description, price, stock_quantity, brand_id, category_id, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, DATETIME('now'))
+                INSERT INTO product (name, description, image_url, price, stock_quantity, brand_id, category_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, DATETIME('now'))
                 RETURNING id
             ",
             product.name,
             product.description,
+            product.image_url,
             product.price,
             product.stock_quantity,
-
             product.brand_id,
             product.category_id
         )

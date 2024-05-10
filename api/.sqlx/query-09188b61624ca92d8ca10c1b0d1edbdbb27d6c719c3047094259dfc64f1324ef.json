@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                INSERT INTO product (name, description, image_url, price, stock_quantity, brand_id, category_id, created_at)\n                VALUES (?, ?, ?, ?, ?, ?, ?, DATETIME('now'))\n                RETURNING id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 7
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "09188b61624ca92d8ca10c1b0d1edbdbb27d6c719c3047094259dfc64f1324ef"
+}

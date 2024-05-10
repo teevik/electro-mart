@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n                SELECT\n                    product.id,\n                    product.name,\n                    product.description,\n                    price,\n                    stock_quantity,\n                    created_at,\n                    brand.id AS brand_id,\n                    brand.name AS brand_name,\n                    brand.description AS brand_description,\n                    category.id AS category_id,\n                    category.name AS category_name,\n                    category.description AS category_description\n                FROM product\n                INNER JOIN brand ON product.brand_id = brand.id\n                INNER JOIN category ON product.category_id = category.id\n                WHERE product.id = ?\n            ",
+  "query": "\n                SELECT\n                    product.id,\n                    product.name,\n                    product.description,\n                    image_url,\n                    price,\n                    stock_quantity,\n                    created_at,\n                    brand.id AS brand_id,\n                    brand.name AS brand_name,\n                    brand.description AS brand_description,\n                    category.id AS category_id,\n                    category.name AS category_name,\n                    category.description AS category_description\n                FROM product\n                INNER JOIN brand ON product.brand_id = brand.id\n                INNER JOIN category ON product.category_id = category.id\n                WHERE product.id = ?\n            ",
   "describe": {
     "columns": [
       {
@@ -19,48 +19,53 @@
         "type_info": "Text"
       },
       {
-        "name": "price",
+        "name": "image_url",
         "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "price",
+        "ordinal": 4,
         "type_info": "Float"
       },
       {
         "name": "stock_quantity",
-        "ordinal": 4,
+        "ordinal": 5,
         "type_info": "Int64"
       },
       {
         "name": "created_at",
-        "ordinal": 5,
+        "ordinal": 6,
         "type_info": "Datetime"
       },
       {
         "name": "brand_id",
-        "ordinal": 6,
+        "ordinal": 7,
         "type_info": "Int64"
       },
       {
         "name": "brand_name",
-        "ordinal": 7,
-        "type_info": "Text"
-      },
-      {
-        "name": "brand_description",
         "ordinal": 8,
         "type_info": "Text"
       },
       {
-        "name": "category_id",
+        "name": "brand_description",
         "ordinal": 9,
+        "type_info": "Text"
+      },
+      {
+        "name": "category_id",
+        "ordinal": 10,
         "type_info": "Int64"
       },
       {
         "name": "category_name",
-        "ordinal": 10,
+        "ordinal": 11,
         "type_info": "Text"
       },
       {
         "name": "category_description",
-        "ordinal": 11,
+        "ordinal": 12,
         "type_info": "Text"
       }
     ],
@@ -76,11 +81,12 @@
       false,
       false,
       false,
+      false,
       true,
       false,
       false,
       true
     ]
   },
-  "hash": "52f95c611a62e12cbb9dc05d5a6a0c7988e1b0be910bb89405a86a9992ddc57b"
+  "hash": "b3655e3172e95de0f2a976880d4b5d766c6a7c01c1cf5ecb369487c6535a11f4"
 }

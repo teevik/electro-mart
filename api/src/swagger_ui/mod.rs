@@ -15,26 +15,10 @@ const SWAGGER_UI_TEMPLATE: &str = r#"
 
 <div id="ui"></div>
 <script>
-    let spec = {:spec};
-    let oauth2RedirectUrl;
-
-    let query = window.location.href.indexOf("?");
-    if (query > 0) {
-        oauth2RedirectUrl = window.location.href.substring(0, query);
-    } else {
-        oauth2RedirectUrl = window.location.href;
-    }
-
-    if (!oauth2RedirectUrl.endsWith("/")) {
-        oauth2RedirectUrl += "/";
-    }
-    oauth2RedirectUrl += "oauth-receiver.html";
-
     SwaggerUIBundle({
+        url: "{:url}",
         dom_id: '#ui',
-        spec: spec,
         filter: false,
-        oauth2RedirectUrl: oauth2RedirectUrl,
         deepLinking: true,
         persistAuthorization: true,
     })
@@ -44,14 +28,14 @@ const SWAGGER_UI_TEMPLATE: &str = r#"
 </html>
 "#;
 
-fn create_html(document: &str) -> String {
+fn create_html(url: &str) -> String {
     SWAGGER_UI_TEMPLATE
         .replace("{:style}", SWAGGER_UI_CSS)
         .replace("{:script}", SWAGGER_UI_JS)
-        .replace("{:spec}", document)
+        .replace("{:url}", url)
 }
 
-pub fn create_endpoint(document: &str) -> impl Endpoint {
-    let ui_html = create_html(document);
+pub fn create_endpoint(url: &str) -> impl Endpoint {
+    let ui_html = create_html(url);
     poem::Route::new().at("/", make_sync(move |_| Html(ui_html.clone())))
 }

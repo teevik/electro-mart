@@ -62,7 +62,7 @@ async fn main() -> anyhow::Result<()> {
     )
     .server("/api");
 
-    let ui = swagger_ui::create_endpoint(&api_service.spec());
+    let ui = swagger_ui::create_endpoint("/openapi.json");
 
     let app = Route::new()
         .at("/openapi.json", api_service.spec_endpoint())

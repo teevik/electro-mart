@@ -108,7 +108,12 @@ impl UserApi {
 
         let id = row.id;
 
-        let authenticated_user = AuthenticatedUser { id };
+        let authenticated_user = AuthenticatedUser {
+            id,
+            email,
+            first_name,
+            last_name,
+        };
         let auth_token = authenticated_user.sign(server_key)?;
 
         Ok(RegisterUserResponse::Success(PlainText(auth_token)))
@@ -127,7 +132,7 @@ impl UserApi {
         let Password(password) = password;
 
         let row = sqlx::query!(
-            "SELECT id, hashed_password FROM user WHERE email = ?",
+            "SELECT id, first_name, last_name, hashed_password FROM user WHERE email = ?",
             email
         )
         .fetch_optional(db)
@@ -138,11 +143,20 @@ impl UserApi {
             return Ok(LoginUserResponse::Unauthorized);
         };
 
-        let id = row.id;
         let password_is_correct = verify_password(password, row.hashed_password).await?;
 
         if password_is_correct {
-            let authenticated_user = AuthenticatedUser { id };
+            let id = row.id;
+            let first_name = row.first_name;
+            let last_name = row.last_name;
+
+            let authenticated_user = AuthenticatedUser {
+                id,
+                email,
+                first_name,
+                last_name,
+            };
+
             let auth_token = authenticated_user.sign(server_key)?;
 
             Ok(LoginUserResponse::Success(PlainText(auth_token)))

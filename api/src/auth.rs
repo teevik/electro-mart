@@ -10,6 +10,9 @@ use sqlx::SqlitePool;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AuthenticatedUser {
     pub id: i64,
+    pub email: String,
+    pub first_name: String,
+    pub last_name: String,
 }
 
 impl AuthenticatedUser {

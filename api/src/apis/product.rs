@@ -142,7 +142,7 @@ fn default_skip() -> i64 {
 
 #[OpenApi(tag = ApiTags::Product)]
 impl ProductApi {
-    #[oai(path = "/products", method = "get")]
+    #[oai(path = "/products", method = "get", operation_id = "allProducts")]
     async fn all_products(
         &self,
         /// Search products by name
@@ -235,7 +235,7 @@ impl ProductApi {
         Ok(Json(products))
     }
 
-    #[oai(path = "/products/:id", method = "get")]
+    #[oai(path = "/products/:id", method = "get", operation_id = "productById")]
     async fn product_by_id(
         &self,
         Path(id): Path<i64>,
@@ -295,7 +295,7 @@ impl ProductApi {
     }
 
     /// ADMIN
-    #[oai(path = "/products", method = "post")]
+    #[oai(path = "/products", method = "post", operation_id = "createProduct")]
     async fn create_product(
         &self,
         Json(product): Json<ProductBody>,
@@ -328,7 +328,7 @@ impl ProductApi {
     }
 
     /// ADMIN
-    #[oai(path = "/products/:id", method = "put")]
+    #[oai(path = "/products/:id", method = "put", operation_id = "updateProduct")]
     async fn update_product(
         &self,
         Path(id): Path<i64>,
@@ -372,7 +372,11 @@ impl ProductApi {
     }
 
     /// ADMIN
-    #[oai(path = "/products/:id", method = "delete")]
+    #[oai(
+        path = "/products/:id",
+        method = "delete",
+        operation_id = "deleteProduct"
+    )]
     async fn delete_product(
         &self,
         Path(id): Path<i64>,

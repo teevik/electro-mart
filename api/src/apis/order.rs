@@ -140,7 +140,7 @@ pub struct OrderApi;
 
 #[OpenApi(tag = ApiTags::Order)]
 impl OrderApi {
-    #[oai(path = "/orders", method = "get")]
+    #[oai(path = "/orders", method = "get", operation_id = "allOrders")]
     async fn all_orders(&self, Data(db): Data<&SqlitePool>) -> ServerResult<Json<Vec<Order>>> {
         let orders = sqlx::query_as!(
             Order,
@@ -160,7 +160,7 @@ impl OrderApi {
         Ok(Json(orders))
     }
 
-    #[oai(path = "/orders/:id", method = "get")]
+    #[oai(path = "/orders/:id", method = "get", operation_id = "getOrder")]
     async fn get_order(
         &self,
         Path(id): Path<i64>,
@@ -223,7 +223,7 @@ impl OrderApi {
         Ok(OrderByIdResponse::Found(Json(order)))
     }
 
-    #[oai(path = "/orders", method = "post")]
+    #[oai(path = "/orders", method = "post", operation_id = "createOrder")]
     async fn create_order(
         &self,
         Json(order): Json<OrderBody>,
@@ -284,7 +284,7 @@ impl OrderApi {
         Ok(CreateOrderResponse::Created(Json(order_id)))
     }
 
-    #[oai(path = "/orders/:id/pay", method = "post")]
+    #[oai(path = "/orders/:id/pay", method = "post", operation_id = "payOrder")]
     async fn pay_order(
         &self,
         Path(id): Path<i64>,
@@ -335,7 +335,7 @@ impl OrderApi {
     }
 
     /// ADMIN
-    #[oai(path = "/orders/:id", method = "delete")]
+    #[oai(path = "/orders/:id", method = "delete", operation_id = "deleteOrder")]
     async fn delete_order(
         &self,
         Path(id): Path<i64>,

@@ -73,7 +73,7 @@ pub struct CategoryApi;
 
 #[OpenApi(tag = ApiTags::Category)]
 impl CategoryApi {
-    #[oai(path = "/categories", method = "get")]
+    #[oai(path = "/categories", method = "get", operation_id = "allCategories")]
     async fn all_categories(
         &self,
         Data(db): Data<&SqlitePool>,
@@ -86,7 +86,11 @@ impl CategoryApi {
         Ok(Json(categories))
     }
 
-    #[oai(path = "/categories/:id", method = "get")]
+    #[oai(
+        path = "/categories/:id",
+        method = "get",
+        operation_id = "categoryById"
+    )]
     async fn category_by_id(
         &self,
         Path(id): Path<i64>,
@@ -108,7 +112,7 @@ impl CategoryApi {
     }
 
     /// ADMIN
-    #[oai(path = "/categories", method = "post")]
+    #[oai(path = "/categories", method = "post", operation_id = "createCategory")]
     async fn create_category(
         &self,
         Json(category): Json<CategoryBody>,
@@ -132,7 +136,11 @@ impl CategoryApi {
     }
 
     /// ADMIN
-    #[oai(path = "/categories/:id", method = "put")]
+    #[oai(
+        path = "/categories/:id",
+        method = "put",
+        operation_id = "updateCategory"
+    )]
     async fn update_category(
         &self,
         Path(id): Path<i64>,
@@ -158,7 +166,11 @@ impl CategoryApi {
     }
 
     /// ADMIN
-    #[oai(path = "/categories/:id", method = "delete")]
+    #[oai(
+        path = "/categories/:id",
+        method = "delete",
+        operation_id = "deleteCategory"
+    )]
     async fn delete_category(
         &self,
         Path(id): Path<i64>,

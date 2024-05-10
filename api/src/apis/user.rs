@@ -77,7 +77,7 @@ pub struct UserApi;
 
 #[OpenApi(tag = ApiTags::User)]
 impl UserApi {
-    #[oai(path = "/user", method = "get")]
+    #[oai(path = "/user", method = "get", operation_id = "getUser")]
     async fn get_user(
         &self,
         AuthToken(auth_user): AuthToken,
@@ -104,7 +104,11 @@ impl UserApi {
         Ok(Json(user))
     }
 
-    #[oai(path = "/user/register", method = "post")]
+    #[oai(
+        path = "/user/register",
+        method = "post",
+        operation_id = "registerUser"
+    )]
     async fn register(
         &self,
         Json(body): Json<ReigsterUserBody>,
@@ -153,7 +157,7 @@ impl UserApi {
         Ok(RegisterUserResponse::Success(PlainText(auth_token)))
     }
 
-    #[oai(path = "/user/login", method = "post")]
+    #[oai(path = "/user/login", method = "post", operation_id = "loginUser")]
     async fn login(
         &self,
         Json(body): Json<LoginUserBody>,

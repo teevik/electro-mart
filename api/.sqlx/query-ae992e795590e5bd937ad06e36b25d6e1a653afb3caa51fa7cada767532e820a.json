@@ -1,0 +1,62 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, email, first_name, last_name, street, postal_code, city, is_admin FROM user WHERE id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "email",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "first_name",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "last_name",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "street",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "postal_code",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "city",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "is_admin",
+        "ordinal": 7,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "ae992e795590e5bd937ad06e36b25d6e1a653afb3caa51fa7cada767532e820a"
+}

@@ -73,7 +73,7 @@ pub struct BrandApi;
 
 #[OpenApi(tag = ApiTags::Brand)]
 impl BrandApi {
-    #[oai(path = "/brands", method = "get")]
+    #[oai(path = "/brands", method = "get", operation_id = "allBrands")]
     async fn all_brands(&self, Data(db): Data<&SqlitePool>) -> ServerResult<Json<Vec<Brand>>> {
         let brands = sqlx::query_as!(Brand, "SELECT id, name, description FROM brand")
             .fetch_all(db)
@@ -83,7 +83,7 @@ impl BrandApi {
         Ok(Json(brands))
     }
 
-    #[oai(path = "/brands/:id", method = "get")]
+    #[oai(path = "/brands/:id", method = "get", operation_id = "brandById")]
     async fn brand_by_id(
         &self,
         Path(id): Path<i64>,
@@ -105,7 +105,7 @@ impl BrandApi {
     }
 
     /// ADMIN
-    #[oai(path = "/brands", method = "post")]
+    #[oai(path = "/brands", method = "post", operation_id = "createBrand")]
     async fn create_brand(
         &self,
         Json(brand): Json<BrandBody>,
@@ -129,7 +129,7 @@ impl BrandApi {
     }
 
     /// ADMIN
-    #[oai(path = "/brands/:id", method = "put")]
+    #[oai(path = "/brands/:id", method = "put", operation_id = "updateBrand")]
     async fn update_brand(
         &self,
         Path(id): Path<i64>,
@@ -155,7 +155,7 @@ impl BrandApi {
     }
 
     /// ADMIN
-    #[oai(path = "/brands/:id", method = "delete")]
+    #[oai(path = "/brands/:id", method = "delete", operation_id = "deleteBrand")]
     async fn delete_brand(
         &self,
         Path(id): Path<i64>,

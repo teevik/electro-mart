@@ -26,7 +26,7 @@ struct User {
 }
 
 #[derive(Debug, Object)]
-struct ReigsterUserBody {
+struct RegisterUserBody {
     #[oai(validator(min_length = 1, max_length = 255))]
     pub email: Email,
     #[oai(validator(min_length = 1, max_length = 255))]
@@ -111,11 +111,11 @@ impl UserApi {
     )]
     async fn register(
         &self,
-        Json(body): Json<ReigsterUserBody>,
+        Json(body): Json<RegisterUserBody>,
         Data(db): Data<&SqlitePool>,
         Data(server_key): Data<&ServerKey>,
     ) -> ServerResult<RegisterUserResponse> {
-        let ReigsterUserBody {
+        let RegisterUserBody {
             email,
             password,
             first_name,

@@ -61,6 +61,7 @@ export type Product = {
     id: number;
     name: string;
     description: string;
+    image_url: string;
     price: number;
     stock_quantity: number;
     created_at: string;
@@ -71,6 +72,7 @@ export type Product = {
 export type ProductBody = {
     name: string;
     description: string;
+    image_url: string;
     price: number;
     stock_quantity: number;
     brand_id: number;

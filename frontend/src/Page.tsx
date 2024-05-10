@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { Spinner } from "./components/Spinner";
+
 interface PageProps {
   title: string;
   children: React.ReactNode;
@@ -18,7 +21,7 @@ export function Page(props: PageProps) {
         </header>
         <main>
           <div className="mx-auto mt-4 max-w-7xl sm:px-6 lg:px-8">
-            {children}
+            <Suspense fallback={<Spinner />}>{children}</Suspense>
           </div>
         </main>
       </div>

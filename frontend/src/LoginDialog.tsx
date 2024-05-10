@@ -12,7 +12,7 @@ import { ErrorMessage, Field, FieldGroup, Label } from "./components/fieldset";
 import { Input } from "./components/input";
 import { Spinner } from "./components/Spinner";
 import { Text, TextButton } from "./components/text";
-import { useAuthToken } from "./hooks/useAuth";
+import { useAuth } from "./state/auth";
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -23,13 +23,13 @@ interface LoginDialogProps {
 export function LoginDialog(props: LoginDialogProps) {
   const { isOpen, onClose, onOpenSignupDialog } = props;
 
-  const [_, setAuthToken] = useAuthToken();
+  const { login } = useAuth();
   const loginMutation = useUserServicePostUserLogin();
 
   // On success
   useEffect(() => {
     if (loginMutation.isSuccess) {
-      setAuthToken(loginMutation.data);
+      login(loginMutation.data);
       onClose();
     }
   }, [loginMutation.isSuccess]);

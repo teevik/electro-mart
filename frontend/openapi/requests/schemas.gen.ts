@@ -175,7 +175,7 @@ export const $PaymentStatus = {
 
 export const $Product = {
     type: 'object',
-    required: ['id', 'name', 'description', 'price', 'stock_quantity', 'created_at', 'brand', 'category'],
+    required: ['id', 'name', 'description', 'image_url', 'price', 'stock_quantity', 'created_at', 'brand', 'category'],
     properties: {
         id: {
             type: 'integer',
@@ -185,6 +185,9 @@ export const $Product = {
             type: 'string'
         },
         description: {
+            type: 'string'
+        },
+        image_url: {
             type: 'string'
         },
         price: {
@@ -210,7 +213,7 @@ export const $Product = {
 
 export const $ProductBody = {
     type: 'object',
-    required: ['name', 'description', 'price', 'stock_quantity', 'brand_id', 'category_id'],
+    required: ['name', 'description', 'image_url', 'price', 'stock_quantity', 'brand_id', 'category_id'],
     properties: {
         name: {
             type: 'string',
@@ -220,6 +223,11 @@ export const $ProductBody = {
         description: {
             type: 'string',
             maxLength: 65535,
+            minLength: 1
+        },
+        image_url: {
+            type: 'string',
+            maxLength: 255,
             minLength: 1
         },
         price: {

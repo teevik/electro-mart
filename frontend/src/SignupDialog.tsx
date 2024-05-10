@@ -10,7 +10,7 @@ import { ErrorMessage, Field, FieldGroup, Label } from "./components/fieldset";
 import { Input } from "./components/input";
 import { Text, TextButton } from "./components/text";
 import { useUserServicePostUserRegister } from "../openapi/queries";
-import { useAuthToken } from "./hooks/useAuth";
+import { useAuth } from "./state/auth";
 import { ApiError, ReigsterUserBody } from "../openapi/requests";
 import { Spinner } from "./components/Spinner";
 
@@ -23,13 +23,13 @@ interface SignupDialogProps {
 export function SignupDialog(props: SignupDialogProps) {
   const { isOpen, onClose, onOpenLoginDialog } = props;
 
-  const [_, setAuthToken] = useAuthToken();
+  const { login } = useAuth();
   const registerMutation = useUserServicePostUserRegister();
 
   // On success
   useEffect(() => {
     if (registerMutation.isSuccess) {
-      setAuthToken(registerMutation.data);
+      login(registerMutation.data);
       onClose();
     }
   }, [registerMutation.isSuccess]);

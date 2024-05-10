@@ -1,31 +1,22 @@
 import { Route, Switch } from "wouter";
 import { NavBar } from "./NavBar";
 import { Page } from "./Page";
-import { Text, TextButton, TextLink } from "./components/text";
-import {
-  Dialog,
-  DialogActions,
-  DialogBody,
-  DialogTitle,
-} from "./components/dialog";
-import { Field, FieldGroup, Label } from "./components/fieldset";
-import { Input } from "./components/input";
-import { Button } from "./components/button";
-import { useEffect, useState } from "react";
-import { useUserServicePostUserLogin } from "../openapi/queries";
-import { useAuthToken } from "./hooks/useAuth";
+import { Text, TextLink } from "./components/text";
+import { useState } from "react";
 import { LoginDialog } from "./LoginDialog";
 import { SignupDialog } from "./SignupDialog";
+import { AccountPage } from "./pages/AccountPage";
+import { useAuth } from "./state/auth";
+import { ProductsPage } from "./pages/ProductsPage";
+import { ProductPage } from "./pages/ProductPage";
+import { CartPage } from "./pages/CartPage";
 
 type ShownDialog = "none" | "login" | "signup";
 
 function App() {
   let [openDialog, setOpenDialog] = useState<ShownDialog>("none");
 
-  // const auth = useAuthToken();
-  // useEffect(() => {
-  //   auth.login({ email: "user@example.com", password: "string" });
-  // }, []);
+  const { isLoggedIn, user } = useAuth();
 
   return (
     <>
@@ -48,14 +39,35 @@ function App() {
 
       <Switch>
         <Route path="/">
-          <Page title="Products">awd</Page>
+          <Page title="Products">
+            <ProductsPage />
+          </Page>
         </Route>
+
+        <Route path="/products/:id">
+          {({ id }) => <ProductPage id={id} />}
+        </Route>
+
         <Route path="/categories">
           <Page title="Categories">awd</Page>
         </Route>
         <Route path="/brands">
           <Page title="Brands">awd</Page>
         </Route>
+        {isLoggedIn && (
+          <Route path="/account">
+            <Page title="Account">
+              <AccountPage user={user} />
+            </Page>
+          </Route>
+        )}
+        {isLoggedIn && (
+          <Route path="/cart">
+            <Page title="Cart">
+              <CartPage />
+            </Page>
+          </Route>
+        )}
 
         {/* Default route in a switch */}
         <Route>

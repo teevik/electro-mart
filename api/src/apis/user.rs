@@ -1,5 +1,5 @@
 use crate::{
-    auth::AuthenticatedUser,
+    auth::{AuthToken, AuthenticatedUser},
     error::ServerResult,
     password::{hash_password, verify_password},
     ApiTags, ServerKey,
@@ -12,6 +12,18 @@ use poem_openapi::{
     ApiResponse, Object, OpenApi,
 };
 use sqlx::SqlitePool;
+
+#[derive(Debug, Object)]
+struct User {
+    pub id: i64,
+    pub email: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub street: String,
+    pub postal_code: String,
+    pub city: String,
+    pub is_admin: bool,
+}
 
 #[derive(Debug, Object)]
 struct ReigsterUserBody {
@@ -65,6 +77,33 @@ pub struct UserApi;
 
 #[OpenApi(tag = ApiTags::User)]
 impl UserApi {
+    #[oai(path = "/user", method = "get")]
+    async fn get_user(
+        &self,
+        AuthToken(auth_user): AuthToken,
+        Data(db): Data<&SqlitePool>,
+    ) -> ServerResult<Json<User>> {
+        let user = sqlx::query!(
+            "SELECT id, email, first_name, last_name, street, postal_code, city, is_admin FROM user WHERE id = ?",
+            auth_user.id
+        ).fetch_one(db)
+        .await
+        .context("fetch user")?;
+
+        let user = User {
+            id: user.id,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            street: user.street,
+            postal_code: user.postal_code,
+            city: user.city,
+            is_admin: user.is_admin == 1,
+        };
+
+        Ok(Json(user))
+    }
+
     #[oai(path = "/user/register", method = "post")]
     async fn register(
         &self,
@@ -108,12 +147,7 @@ impl UserApi {
 
         let id = row.id;
 
-        let authenticated_user = AuthenticatedUser {
-            id,
-            email,
-            first_name,
-            last_name,
-        };
+        let authenticated_user = AuthenticatedUser { id };
         let auth_token = authenticated_user.sign(server_key)?;
 
         Ok(RegisterUserResponse::Success(PlainText(auth_token)))
@@ -132,7 +166,7 @@ impl UserApi {
         let Password(password) = password;
 
         let row = sqlx::query!(
-            "SELECT id, first_name, last_name, hashed_password FROM user WHERE email = ?",
+            "SELECT id, hashed_password FROM user WHERE email = ?",
             email
         )
         .fetch_optional(db)
@@ -147,15 +181,8 @@ impl UserApi {
 
         if password_is_correct {
             let id = row.id;
-            let first_name = row.first_name;
-            let last_name = row.last_name;
 
-            let authenticated_user = AuthenticatedUser {
-                id,
-                email,
-                first_name,
-                last_name,
-            };
+            let authenticated_user = AuthenticatedUser { id };
 
             let auth_token = authenticated_user.sign(server_key)?;
 

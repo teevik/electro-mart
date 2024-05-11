@@ -73,20 +73,24 @@ export interface components {
       id: number;
       name: string;
       description?: string;
+      image_url: string;
     };
     BrandBody: {
       name: string;
       description?: string;
+      image_url: string;
     };
     Category: {
       /** Format: int64 */
       id: number;
       name: string;
       description?: string;
+      image_url: string;
     };
     CategoryBody: {
       name: string;
       description?: string;
+      image_url: string;
     };
     LoginUserBody: {
       /** Format: email */
@@ -521,6 +525,10 @@ export interface operations {
   allProducts: {
     parameters: {
       query?: {
+        /** @description Filter products by specific category */
+        category_id?: number;
+        /** @description Filter products by specific brand */
+        brand_id?: number;
         /** @description Search products by name */
         search?: string;
         /** @description Sort products */

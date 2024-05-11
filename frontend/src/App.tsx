@@ -12,6 +12,10 @@ import { ProductPage } from "./pages/ProductPage";
 import { CartPage } from "./pages/CartPage";
 import { OrdersPage } from "./pages/OrdersPage";
 import { OrderPage } from "./pages/OrderPage";
+import { CategoriesPage } from "./pages/CategoriesPage";
+import { CategoryPage } from "./pages/CategoryPage";
+import { BrandsPage } from "./pages/BrandsPage";
+import { BrandPage } from "./pages/BrandPage";
 
 type ShownDialog = "none" | "login" | "signup";
 
@@ -47,15 +51,45 @@ function App() {
         </Route>
 
         <Route path="/products/:id">
-          {({ id }) => <ProductPage id={id} />}
+          {({ id }) => (
+            <Page title="Product" backHref="/">
+              <ProductPage id={id} />
+            </Page>
+          )}
         </Route>
 
         <Route path="/categories">
-          <Page title="Categories">awd</Page>
+          <Page title="Categories">
+            <CategoriesPage />
+          </Page>
         </Route>
+
+        <Route path="/categories/:id">
+          {({ id }) => (
+            <Page title="Category" backHref="/categories">
+              <CategoryPage id={id} />
+            </Page>
+          )}
+        </Route>
+
+        <Route path="/brands">
+          <Page title="Brands">
+            <BrandsPage />
+          </Page>
+        </Route>
+
+        <Route path="/brands/:id">
+          {({ id }) => (
+            <Page title="Brand" backHref="/brands">
+              <BrandPage id={id} />
+            </Page>
+          )}
+        </Route>
+
         <Route path="/brands">
           <Page title="Brands">awd</Page>
         </Route>
+
         {isLoggedIn && (
           <>
             <Route path="/account">

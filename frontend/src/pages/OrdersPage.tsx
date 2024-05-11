@@ -12,8 +12,10 @@ import {
 } from "../components/table";
 import { ShoppingBagIcon } from "@heroicons/react/24/solid";
 import { OrderStatus } from "../components/OrderStatus";
+import { useLocation } from "wouter";
 
 export function OrdersPage() {
+  const [location, setLocation] = useLocation();
   const query = api.orders.allOrders.useSuspenseQuery(undefined);
   const orders = query.data;
 
@@ -40,7 +42,13 @@ export function OrdersPage() {
       </TableHead>
       <TableBody>
         {orders.map((order) => (
-          <TableRow key={order.id}>
+          <TableRow
+            key={order.id}
+            className="cursor-pointer"
+            onClick={() => {
+              setLocation(`/orders/${order.id}`);
+            }}
+          >
             <TableCell>
               <Button plain href={`/orders/${order.id}`} className="size-10">
                 {order.id}

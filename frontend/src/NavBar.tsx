@@ -21,7 +21,7 @@ import { Fragment } from "react/jsx-runtime";
 import { Button } from "./components/button";
 import clsx from "clsx";
 import { useAuth } from "./state/auth";
-import { startTransition, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./components/input";
 
 interface NavLinkProps {
@@ -71,21 +71,10 @@ function DesktopNavLink(props: NavLinkProps) {
   );
 }
 
-const userOld = {
-  name: "Tom Cook",
-  email: "tom@example.com",
-  imageUrl:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
 const navigation = [
   { href: "/", label: <>Products</> },
   { href: "/categories", label: <>Categories</> },
   { href: "/brands", label: <>Brands</> },
-];
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
 ];
 
 function LeftSide() {
@@ -110,7 +99,7 @@ interface UserMenuLinkProps {
   children: React.ReactNode;
 }
 
-function UserMenuLink(props: UserMenuLinkProps) {
+function DesktopUserMenuLink(props: UserMenuLinkProps) {
   const { href, children } = props;
 
   return (
@@ -130,12 +119,26 @@ function UserMenuLink(props: UserMenuLinkProps) {
   );
 }
 
+function MobileUserMenuLink(props: UserMenuLinkProps) {
+  const { href, children } = props;
+
+  return (
+    <DisclosureButton
+      as={Link}
+      href={href}
+      className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+    >
+      {children}
+    </DisclosureButton>
+  );
+}
+
 interface UserMenuButtonProps {
   onClick: () => void;
   children: React.ReactNode;
 }
 
-function UserMenuButton(props: UserMenuButtonProps) {
+function DesktopUserMenuButton(props: UserMenuButtonProps) {
   const { onClick, children } = props;
 
   return (
@@ -155,6 +158,19 @@ function UserMenuButton(props: UserMenuButtonProps) {
   );
 }
 
+function MobileUserMenuButton(props: UserMenuButtonProps) {
+  const { onClick, children } = props;
+
+  return (
+    <DisclosureButton
+      onClick={onClick}
+      className="block text-left w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+    >
+      {children}
+    </DisclosureButton>
+  );
+}
+
 function LoggedIn() {
   const { signOut } = useAuth();
 
@@ -165,7 +181,7 @@ function LoggedIn() {
         className="relative flex max-w-xs items-center rounded-full bg-white text-gray-500 hover:text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
       >
         <span className="absolute -inset-1.5" />
-        <span className="sr-only">Open user menu</span>
+        <span className="sr-only">Open shopping cart</span>
         <ShoppingCartIcon className="h-8 w-8 rounded-full" />
       </Link>
 
@@ -187,9 +203,11 @@ function LoggedIn() {
           leaveTo="transform opacity-0 scale-95"
         >
           <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-            <UserMenuLink href="/account">Account</UserMenuLink>
-            <UserMenuLink href="/orders">Orders</UserMenuLink>
-            <UserMenuButton onClick={signOut}>Sign out</UserMenuButton>
+            <DesktopUserMenuLink href="/account">Account</DesktopUserMenuLink>
+            <DesktopUserMenuLink href="/orders">Orders</DesktopUserMenuLink>
+            <DesktopUserMenuButton onClick={signOut}>
+              Sign out
+            </DesktopUserMenuButton>
           </MenuItems>
         </Transition>
       </Menu>
@@ -234,6 +252,8 @@ interface NavbarProps {
 export function NavBar(props: NavbarProps) {
   let { onClickLogin, onClickSignup } = props;
 
+  const { signOut, isLoggedIn } = useAuth();
+
   const [search, setSearch] = useState("");
   const [_, setLocation] = useLocation();
 
@@ -255,7 +275,7 @@ export function NavBar(props: NavbarProps) {
               <LeftSide />
 
               <Input
-                className="max-w-sm"
+                className="max-w-sm grow"
                 placeholder="Search"
                 onChange={(event) => {
                   setSearch(event.target.value);
@@ -290,43 +310,34 @@ export function NavBar(props: NavbarProps) {
               ))}
             </div>
             <div className="border-t border-gray-200 pb-3 pt-4">
-              <div className="flex items-center px-4">
-                <div className="flex-shrink-0">
-                  <img
-                    className="h-10 w-10 rounded-full"
-                    src={userOld.imageUrl}
-                    alt=""
-                  />
-                </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium text-gray-800">
-                    {userOld.name}
+              {isLoggedIn && (
+                <>
+                  <div className="mt-3 space-y-1">
+                    <MobileUserMenuLink href="/cart">
+                      Shopping cart
+                    </MobileUserMenuLink>
+
+                    <MobileUserMenuLink href="/account">
+                      Account
+                    </MobileUserMenuLink>
+                    <MobileUserMenuLink href="/orders">
+                      Orders
+                    </MobileUserMenuLink>
+                    <MobileUserMenuButton onClick={signOut}>
+                      Sign out
+                    </MobileUserMenuButton>
                   </div>
-                  <div className="text-sm font-medium text-gray-500">
-                    {userOld.email}
-                  </div>
+                </>
+              )}
+
+              {!isLoggedIn && (
+                <div className="flex gap-4 px-3">
+                  <Button plain onClick={onClickLogin}>
+                    Log In
+                  </Button>
+                  <Button onClick={onClickSignup}>Sign Up</Button>
                 </div>
-                <button
-                  type="button"
-                  className="relative ml-auto flex-shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  <span className="absolute -inset-1.5" />
-                  <span className="sr-only">View notifications</span>
-                  <BellIcon className="h-6 w-6" aria-hidden="true" />
-                </button>
-              </div>
-              <div className="mt-3 space-y-1">
-                {userNavigation.map((item) => (
-                  <DisclosureButton
-                    key={item.name}
-                    as="a"
-                    href={item.href}
-                    className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                  >
-                    {item.name}
-                  </DisclosureButton>
-                ))}
-              </div>
+              )}
             </div>
           </DisclosurePanel>
         </>

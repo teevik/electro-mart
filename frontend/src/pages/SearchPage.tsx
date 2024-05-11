@@ -3,23 +3,16 @@ import { api } from "../api";
 import { Link } from "../components/link";
 import { Text } from "../components/text";
 
-interface CategoryPageProps {
-  id: string;
+interface SearchPageProps {
+  query: string;
 }
 
-export function CategoryPage(props: CategoryPageProps) {
-  const { id } = props;
-  const numericId = parseInt(id);
-
-  const categoryQuery = api.categories.categoryById.useSuspenseQuery({
-    path: { id: numericId },
-  });
-
-  const category = categoryQuery.data;
+export function SearchPage(props: SearchPageProps) {
+  const { query } = props;
 
   const productsQuery = api.products.allProducts.useSuspenseQuery({
     query: {
-      category_id: numericId,
+      search: query,
     },
   });
   const products = productsQuery.data;
@@ -29,7 +22,7 @@ export function CategoryPage(props: CategoryPageProps) {
       <div className="text-center mt-32">
         <TvIcon className="mx-auto h-12 w-12 text-gray-400" />
         <h3 className="mt-2 text-sm font-semibold text-gray-900">
-          No products found
+          No products found for "{query}"
         </h3>
       </div>
     );
@@ -37,12 +30,6 @@ export function CategoryPage(props: CategoryPageProps) {
 
   return (
     <>
-      <div className="mb-8">
-        <h1 className="flex items-center text-3xl font-bold leading-tight tracking-tight text-gray-900">
-          {category.name}
-        </h1>
-        <Text>{category.description}</Text>
-      </div>
       <ul
         role="list"
         className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"

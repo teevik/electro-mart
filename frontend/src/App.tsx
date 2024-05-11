@@ -16,6 +16,7 @@ import { CategoriesPage } from "./pages/CategoriesPage";
 import { CategoryPage } from "./pages/CategoryPage";
 import { BrandsPage } from "./pages/BrandsPage";
 import { BrandPage } from "./pages/BrandPage";
+import { SearchPage } from "./pages/SearchPage";
 
 type ShownDialog = "none" | "login" | "signup";
 
@@ -86,30 +87,38 @@ function App() {
           )}
         </Route>
 
-        <Route path="/brands">
-          <Page title="Brands">awd</Page>
+        <Route path="/search/:query">
+          {({ query }) => (
+            <Page title="Search" backHref="/">
+              <SearchPage query={query} />
+            </Page>
+          )}
         </Route>
 
         {isLoggedIn && (
           <>
             <Route path="/account">
-              <Page title="Account">
+              <Page title="Account" backHref="/">
                 <AccountPage authUser={user} />
               </Page>
             </Route>
 
             <Route path="/orders">
-              <Page title="Orders">
+              <Page title="Orders" backHref="/">
                 <OrdersPage />
               </Page>
             </Route>
 
             <Route path="/orders/:id">
-              {({ id }) => <OrderPage id={id} />}
+              {({ id }) => (
+                <Page title="Order" backHref="/orders">
+                  <OrderPage id={id} />
+                </Page>
+              )}
             </Route>
 
             <Route path="/cart">
-              <Page title="Cart">
+              <Page title="Cart" backHref="/">
                 <CartPage />
               </Page>
             </Route>

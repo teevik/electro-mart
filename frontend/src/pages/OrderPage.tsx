@@ -83,29 +83,23 @@ export function OrderPage(props: OrderPageProps) {
 
   if (query.isError) {
     return (
-      <Page title="Order not found">
-        <Text>
-          Order with id {id} not found.
-          <br />
-          <TextLink href="/">Go back home.</TextLink>
-        </Text>
-      </Page>
+      <Text>
+        Order with id {id} not found.
+        <br />
+        <TextLink href="/">Go back home.</TextLink>
+      </Text>
     );
   }
 
   if (query.isLoading) {
-    return (
-      <Page title="Loading order">
-        <Spinner />
-      </Page>
-    );
+    return <Spinner />;
   }
 
   const order = query.data!;
   const isPaid = order.payment != null;
 
   return (
-    <Page title="Order">
+    <>
       <Table className="max-w-lg">
         <TableBody>
           <TableRow>
@@ -199,6 +193,6 @@ export function OrderPage(props: OrderPageProps) {
           <Button onClick={() => setPayDialogOpen(true)}>Pay order</Button>
         </div>
       )}
-    </Page>
+    </>
   );
 }

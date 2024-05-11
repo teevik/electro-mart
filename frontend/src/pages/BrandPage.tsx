@@ -1,3 +1,4 @@
+import { TvIcon } from "@heroicons/react/24/solid";
 import { api } from "../api";
 import { Link } from "../components/link";
 import { Text } from "../components/text";
@@ -22,6 +23,17 @@ export function BrandPage(props: BrandPageProps) {
     },
   });
   const products = productsQuery.data;
+
+  if (products.length === 0) {
+    return (
+      <div className="text-center mt-32">
+        <TvIcon className="mx-auto h-12 w-12 text-gray-400" />
+        <h3 className="mt-2 text-sm font-semibold text-gray-900">
+          No products found
+        </h3>
+      </div>
+    );
+  }
 
   return (
     <>

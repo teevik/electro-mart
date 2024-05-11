@@ -1,4 +1,4 @@
-import { useRoute } from "wouter";
+import { useLocation, useRoute } from "wouter";
 import {
   Bars3Icon,
   BellIcon,
@@ -21,6 +21,8 @@ import { Fragment } from "react/jsx-runtime";
 import { Button } from "./components/button";
 import clsx from "clsx";
 import { useAuth } from "./state/auth";
+import { startTransition, useEffect, useState } from "react";
+import { Input } from "./components/input";
 
 interface NavLinkProps {
   href: string;
@@ -232,6 +234,15 @@ interface NavbarProps {
 export function NavBar(props: NavbarProps) {
   let { onClickLogin, onClickSignup } = props;
 
+  const [search, setSearch] = useState("");
+  const [_, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (search) {
+      setLocation(`/search/${search}`);
+    }
+  }, [search]);
+
   return (
     <Disclosure
       as="nav"
@@ -240,8 +251,17 @@ export function NavBar(props: NavbarProps) {
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 justify-between">
+            <div className="flex h-16 justify-between items-center">
               <LeftSide />
+
+              <Input
+                className="max-w-sm"
+                placeholder="Search"
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                }}
+              />
+
               <RightSide
                 onClickLogin={onClickLogin}
                 onClickSignup={onClickSignup}

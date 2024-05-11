@@ -305,12 +305,11 @@ impl OrderApi {
 
         sqlx::query!(
             "
-                INSERT INTO payment (order_id, payment_method, status, payment_date)
-                VALUES (?, ?, ?, DATETIME('now'))
+                INSERT INTO payment (order_id, payment_method, payment_date)
+                VALUES (?,  ?, DATETIME('now'))
             ",
             order_id,
-            payment.payment_method,
-            PaymentStatus::Paid as i64
+            payment.payment_method
         )
         .execute(db)
         .await

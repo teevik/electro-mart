@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                SELECT\n                    `order`.status,\n                    payment.payment_method AS payment_method\n                FROM `order`\n                LEFT JOIN payment ON `order`.id = payment.order_id\n                WHERE `order`.id = ? AND `order`.user_id = ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "status",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "payment_method",
+        "ordinal": 1,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "574609f78db8a8cb9d5f4610ad098cd2415c59cbc1d4235af1d216e4f7eacda6"
+}

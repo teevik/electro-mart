@@ -5,29 +5,10 @@ use poem::web::Data;
 use poem_openapi::{param::Path, payload::Json, ApiResponse, Enum, Object, OpenApi};
 use sqlx::SqlitePool;
 
-#[derive(Debug, Enum, sqlx::Type)]
-enum PaymentStatus {
-    Pending = 0,
-    Paid = 1,
-    Failed = 2,
-}
-
-impl From<i64> for PaymentStatus {
-    fn from(value: i64) -> Self {
-        match value {
-            0 => PaymentStatus::Pending,
-            1 => PaymentStatus::Paid,
-            2 => PaymentStatus::Failed,
-            _ => panic!("invalid payment status"),
-        }
-    }
-}
-
 #[derive(Debug, Object)]
 struct Payment {
     pub payment_method: String,
     pub payment_date: NaiveDateTime,
-    pub status: PaymentStatus,
 }
 
 #[derive(Debug, Object)]
@@ -181,8 +162,7 @@ impl OrderApi {
                     total_price,
                     `order`.status,
                     payment.payment_method,
-                    payment.payment_date,
-                    payment.status AS payment_status
+                    payment.payment_date
                 FROM `order`
                 LEFT OUTER JOIN payment ON `order`.id = payment.order_id
                 WHERE user_id = ? AND `order`.id = ?
@@ -216,7 +196,6 @@ impl OrderApi {
         let payment = row.payment_method.map(|payment_method| Payment {
             payment_method,
             payment_date: row.payment_date.expect("exists"),
-            status: row.payment_status.expect("exists").into(),
         });
 
         let order = SpecificOrder {
@@ -238,8 +217,6 @@ impl OrderApi {
         AuthToken(user): AuthToken,
         Data(db): Data<&SqlitePool>,
     ) -> ServerResult<CreateOrderResponse> {
-        let status = OrderStatus::Pending;
-
         let mut total_price: f64 = 0.;
 
         for item in &order.items {
@@ -265,7 +242,7 @@ impl OrderApi {
                 RETURNING id
             ",
             total_price,
-            status,
+            OrderStatus::Pending as i64,
             user.id
         )
         .fetch_one(db)
@@ -306,7 +283,7 @@ impl OrderApi {
             "
                 SELECT
                     `order`.status,
-                    payment.status AS payment_status
+                    payment.payment_method AS payment_method
                 FROM `order`
                 LEFT JOIN payment ON `order`.id = payment.order_id
                 WHERE `order`.id = ? AND `order`.user_id = ?
@@ -322,7 +299,7 @@ impl OrderApi {
             return Ok(PayResponse::NotFound);
         };
 
-        if order.payment_status.is_some() {
+        if order.payment_method.is_some() {
             return Ok(PayResponse::PaymentAlreadyDone);
         }
 
@@ -333,7 +310,7 @@ impl OrderApi {
             ",
             order_id,
             payment.payment_method,
-            PaymentStatus::Pending
+            PaymentStatus::Paid as i64
         )
         .execute(db)
         .await
@@ -345,7 +322,7 @@ impl OrderApi {
                 SET status = ?
                 WHERE id = ?
             ",
-            OrderStatus::Paid,
+            OrderStatus::Paid as i64,
             order_id
         )
         .execute(db)

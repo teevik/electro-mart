@@ -145,6 +145,10 @@ impl ProductApi {
     #[oai(path = "/products", method = "get", operation_id = "allProducts")]
     async fn all_products(
         &self,
+        /// Filter products by specific category
+        Query(category_id): Query<Option<i64>>,
+        /// Filter products by specific brand
+        Query(brand_id): Query<Option<i64>>,
         /// Search products by name
         Query(search): Query<Option<String>>,
         /// Sort products
@@ -187,7 +191,9 @@ impl ProductApi {
                 INNER JOIN brand ON product.brand_id = brand.id
                 INNER JOIN category ON product.category_id = category.id
                 WHERE
-                    product.name LIKE '%' || $1 || '%'
+                    product.name LIKE '%' || $1 || '%' AND
+                    ($6 IS NULL OR product.category_id = $6) AND
+                    ($7 IS NULL OR product.brand_id = $7)
                 ORDER BY
                     (CASE WHEN $3 = 'Ascending' THEN CASE $2
                         WHEN 'Created' THEN product.created_at
@@ -205,7 +211,9 @@ impl ProductApi {
             sort_by,
             sort_direction,
             take,
-            skip
+            skip,
+            category_id,
+            brand_id
         )
         .fetch_all(db)
         .await

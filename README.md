@@ -20,5 +20,5 @@ npm run dev
 ```bash
 git clone git@github.com:teevik/electro-mart.git
 cd electro-mart/api
-cargo run
+SERVER_KEY=example cargo run
 ```

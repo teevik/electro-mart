@@ -1,5 +1,6 @@
 # flyctl launch added from .gitignore
 **/target
+database
 **/database.sqlite
 **/database.sqlite-shm
 **/database.sqlite-wal

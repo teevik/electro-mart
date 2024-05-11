@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "../components/table";
 import { ShoppingBagIcon } from "@heroicons/react/24/solid";
+import { OrderStatus } from "../components/OrderStatus";
 
 export function OrdersPage() {
   const query = api.orders.allOrders.useSuspenseQuery(undefined);
@@ -49,8 +50,10 @@ export function OrdersPage() {
             <TableCell>
               {new Date(order.order_date).toLocaleDateString()}
             </TableCell>
-            <TableCell>{order.total_price}</TableCell>
-            <TableCell>{order.status}</TableCell>
+            <TableCell>${order.total_price.toFixed(2)}</TableCell>
+            <TableCell>
+              <OrderStatus status={order.status} />
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

@@ -14,6 +14,8 @@ import {
 import { useEffect, useState } from "react";
 import { Field, FieldGroup, Label } from "../components/fieldset";
 import { Input } from "../components/input";
+import { Badge } from "../components/badge";
+import { OrderStatus } from "../components/OrderStatus";
 
 type OrderItem = components["schemas"]["OrderItem"];
 type PaymentBody = components["schemas"]["PaymentBody"];
@@ -131,12 +133,14 @@ export function OrderPage(props: OrderPageProps) {
 
           <TableRow>
             <TableCell>Total price</TableCell>
-            <TableCell>{order.total_price}</TableCell>
+            <TableCell>${order.total_price.toFixed(2)}</TableCell>
           </TableRow>
 
           <TableRow>
             <TableCell>Status</TableCell>
-            <TableCell>{order.status}</TableCell>
+            <TableCell>
+              <OrderStatus status={order.status} />
+            </TableCell>
           </TableRow>
 
           {isPaid && (

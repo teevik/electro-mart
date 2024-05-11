@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT id, name, description FROM brand",
+  "query": "SELECT id, name, description, image_url FROM brand WHERE id = ?",
   "describe": {
     "columns": [
       {
@@ -17,16 +17,22 @@
         "name": "description",
         "ordinal": 2,
         "type_info": "Text"
+      },
+      {
+        "name": "image_url",
+        "ordinal": 3,
+        "type_info": "Text"
       }
     ],
     "parameters": {
-      "Right": 0
+      "Right": 1
     },
     "nullable": [
       false,
       false,
-      true
+      true,
+      false
     ]
   },
-  "hash": "20ce4414d7ed504bd9b1c16a0f96a215bee7971e0b1dba82fa1817dbb0577b1c"
+  "hash": "749c570027fa15a4edfcc608d074eee04e3a442876a717919945b5908c1886b4"
 }

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                UPDATE product\n                SET\n                    name = ?,\n                    description = ?,\n                    image_url = ?,\n                    price = ?,\n                    stock_quantity = ?,\n                    brand_id = ?,\n                    category_id = ?\n                WHERE id = ?\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 8
+    },
+    "nullable": []
+  },
+  "hash": "01bd16219afcaa2651d00102c2792e0fcd3d544d8e1d1347e9bb1bdb76643787"
+}

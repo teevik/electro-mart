@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n                SELECT\n                    product.id,\n                    product.name,\n                    product.description,\n                    image_url,\n                    price,\n                    stock_quantity,\n                    created_at,\n                    brand.id AS brand_id,\n                    brand.name AS brand_name,\n                    brand.description AS brand_description,\n                    category.id AS category_id,\n                    category.name AS category_name,\n                    category.description AS category_description\n                FROM product\n                INNER JOIN brand ON product.brand_id = brand.id\n                INNER JOIN category ON product.category_id = category.id\n                WHERE product.id = ?\n            ",
+  "query": "\n                SELECT\n                    product.id,\n                    product.name,\n                    product.description,\n                    product.image_url,\n                    price,\n                    stock_quantity,\n                    created_at,\n                    brand.id AS brand_id,\n                    brand.name AS brand_name,\n                    brand.description AS brand_description,\n                    brand.image_url AS brand_image_url,\n                    category.id AS category_id,\n                    category.name AS category_name,\n                    category.description AS category_description,\n                    category.image_url AS category_image_url\n                FROM product\n                INNER JOIN brand ON product.brand_id = brand.id\n                INNER JOIN category ON product.category_id = category.id\n                WHERE product.id = ?\n            ",
   "describe": {
     "columns": [
       {
@@ -54,18 +54,28 @@
         "type_info": "Text"
       },
       {
-        "name": "category_id",
+        "name": "brand_image_url",
         "ordinal": 10,
+        "type_info": "Text"
+      },
+      {
+        "name": "category_id",
+        "ordinal": 11,
         "type_info": "Int64"
       },
       {
         "name": "category_name",
-        "ordinal": 11,
+        "ordinal": 12,
         "type_info": "Text"
       },
       {
         "name": "category_description",
-        "ordinal": 12,
+        "ordinal": 13,
+        "type_info": "Text"
+      },
+      {
+        "name": "category_image_url",
+        "ordinal": 14,
         "type_info": "Text"
       }
     ],
@@ -85,8 +95,10 @@
       true,
       false,
       false,
-      true
+      false,
+      true,
+      false
     ]
   },
-  "hash": "b3655e3172e95de0f2a976880d4b5d766c6a7c01c1cf5ecb369487c6535a11f4"
+  "hash": "02e7ab24d21bd88295df5cafa4c471be756c1a7ba492c4e68e64b134fd505278"
 }

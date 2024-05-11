@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE brand SET name = ?, description = ?, image_url = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "165b3302f064b77090c00bf6a148548b0e4be3cf7dc95e95db731fd44103a1e2"
+}

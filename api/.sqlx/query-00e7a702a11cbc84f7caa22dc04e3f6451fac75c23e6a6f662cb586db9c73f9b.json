@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "INSERT INTO category (name, description) VALUES (?, ?) RETURNING id",
+  "query": "INSERT INTO category (name, description, image_url) VALUES (?, ?, ?) RETURNING id",
   "describe": {
     "columns": [
       {
@@ -10,11 +10,11 @@
       }
     ],
     "parameters": {
-      "Right": 2
+      "Right": 3
     },
     "nullable": [
       false
     ]
   },
-  "hash": "e7bb600ac472c6bf3bddd94fa75dc6198c7e3b3c60a053f2eb6a867c75f48704"
+  "hash": "00e7a702a11cbc84f7caa22dc04e3f6451fac75c23e6a6f662cb586db9c73f9b"
 }

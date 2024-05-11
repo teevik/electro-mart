@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT id, name, description FROM category WHERE id = ?",
+  "query": "SELECT id, name, description, image_url FROM category WHERE id = ?",
   "describe": {
     "columns": [
       {
@@ -17,6 +17,11 @@
         "name": "description",
         "ordinal": 2,
         "type_info": "Text"
+      },
+      {
+        "name": "image_url",
+        "ordinal": 3,
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -25,8 +30,9 @@
     "nullable": [
       false,
       false,
-      true
+      true,
+      false
     ]
   },
-  "hash": "3b4793487017088113ca9421412da433df1bf7bb51a895667b1cfa6802dea159"
+  "hash": "2b8128cbf460cc08de6fd4b21c00a60f3d7764c01f9000b30547e77b19b4ae98"
 }

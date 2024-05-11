@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "INSERT INTO brand (name, description) VALUES (?, ?) RETURNING id",
+  "query": "INSERT INTO brand (name, description, image_url) VALUES (?, ?, ?) RETURNING id",
   "describe": {
     "columns": [
       {
@@ -10,11 +10,11 @@
       }
     ],
     "parameters": {
-      "Right": 2
+      "Right": 3
     },
     "nullable": [
       false
     ]
   },
-  "hash": "600ec5a75a9d69b0226e1936fbbe2dc60d842d6f4b24e14d4e2a80bd99285c66"
+  "hash": "0bddf03a0f23126db40258b93b0c031737e0450ab4bcd2a25353bfbf0fb51906"
 }

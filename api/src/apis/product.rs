@@ -171,16 +171,18 @@ impl ProductApi {
                     product.id,
                     product.name,
                     product.description,
-                    image_url,
+                    product.image_url,
                     price,
                     stock_quantity,
                     created_at,
                     brand.id AS brand_id,
                     brand.name AS brand_name,
                     brand.description AS brand_description,
+                    brand.image_url AS brand_image_url,
                     category.id AS category_id,
                     category.name AS category_name,
-                    category.description AS category_description
+                    category.description AS category_description,
+                    category.image_url AS category_image_url
                 FROM product
                 INNER JOIN brand ON product.brand_id = brand.id
                 INNER JOIN category ON product.category_id = category.id
@@ -223,11 +225,13 @@ impl ProductApi {
                     id: product.brand_id,
                     name: product.brand_name,
                     description: product.brand_description,
+                    image_url: product.brand_image_url,
                 },
                 category: Category {
                     id: product.category_id,
                     name: product.category_name,
                     description: product.category_description,
+                    image_url: product.category_image_url,
                 },
             })
             .collect();
@@ -247,16 +251,18 @@ impl ProductApi {
                     product.id,
                     product.name,
                     product.description,
-                    image_url,
+                    product.image_url,
                     price,
                     stock_quantity,
                     created_at,
                     brand.id AS brand_id,
                     brand.name AS brand_name,
                     brand.description AS brand_description,
+                    brand.image_url AS brand_image_url,
                     category.id AS category_id,
                     category.name AS category_name,
-                    category.description AS category_description
+                    category.description AS category_description,
+                    category.image_url AS category_image_url
                 FROM product
                 INNER JOIN brand ON product.brand_id = brand.id
                 INNER JOIN category ON product.category_id = category.id
@@ -280,11 +286,13 @@ impl ProductApi {
                 id: product.brand_id,
                 name: product.brand_name,
                 description: product.brand_description,
+                image_url: product.brand_image_url,
             },
             category: Category {
                 id: product.category_id,
                 name: product.category_name,
                 description: product.category_description,
+                image_url: product.category_image_url,
             },
         });
 
@@ -346,6 +354,7 @@ impl ProductApi {
                 SET
                     name = ?,
                     description = ?,
+                    image_url = ?,
                     price = ?,
                     stock_quantity = ?,
                     brand_id = ?,
@@ -354,6 +363,7 @@ impl ProductApi {
             ",
             product.name,
             product.description,
+            product.image_url,
             product.price,
             product.stock_quantity,
             product.brand_id,

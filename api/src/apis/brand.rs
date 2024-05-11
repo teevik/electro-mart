@@ -9,6 +9,7 @@ pub struct Brand {
     pub id: i64,
     pub name: String,
     pub description: Option<String>,
+    pub image_url: String,
 }
 
 #[derive(ApiResponse)]
@@ -26,6 +27,8 @@ pub struct BrandBody {
     pub name: String,
     #[oai(validator(min_length = 1, max_length = 65535))]
     pub description: Option<String>,
+    #[oai(validator(min_length = 1, max_length = 255))]
+    pub image_url: String,
 }
 
 #[derive(ApiResponse)]
@@ -75,7 +78,7 @@ pub struct BrandApi;
 impl BrandApi {
     #[oai(path = "/brands", method = "get", operation_id = "allBrands")]
     async fn all_brands(&self, Data(db): Data<&SqlitePool>) -> ServerResult<Json<Vec<Brand>>> {
-        let brands = sqlx::query_as!(Brand, "SELECT id, name, description FROM brand")
+        let brands = sqlx::query_as!(Brand, "SELECT id, name, description, image_url FROM brand")
             .fetch_all(db)
             .await
             .context("fetch brands")?;
@@ -91,7 +94,7 @@ impl BrandApi {
     ) -> ServerResult<BrandByIdResponse> {
         let brand = sqlx::query_as!(
             Brand,
-            "SELECT id, name, description FROM brand WHERE id = ?",
+            "SELECT id, name, description, image_url FROM brand WHERE id = ?",
             id
         )
         .fetch_optional(db)
@@ -117,9 +120,10 @@ impl BrandApi {
         }
 
         let inserted = sqlx::query!(
-            "INSERT INTO brand (name, description) VALUES (?, ?) RETURNING id",
+            "INSERT INTO brand (name, description, image_url) VALUES (?, ?, ?) RETURNING id",
             brand.name,
-            brand.description
+            brand.description,
+            brand.image_url
         )
         .fetch_one(db)
         .await
@@ -142,9 +146,10 @@ impl BrandApi {
         }
 
         sqlx::query!(
-            "UPDATE brand SET name = ?, description = ? WHERE id = ?",
+            "UPDATE brand SET name = ?, description = ?, image_url = ? WHERE id = ?",
             brand.name,
             brand.description,
+            brand.image_url,
             id
         )
         .execute(db)

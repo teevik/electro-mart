@@ -9,6 +9,7 @@ pub struct Category {
     pub id: i64,
     pub name: String,
     pub description: Option<String>,
+    pub image_url: String,
 }
 
 #[derive(ApiResponse)]
@@ -26,6 +27,8 @@ pub struct CategoryBody {
     pub name: String,
     #[oai(validator(min_length = 1, max_length = 65535))]
     pub description: Option<String>,
+    #[oai(validator(min_length = 1, max_length = 255))]
+    pub image_url: String,
 }
 
 #[derive(ApiResponse)]
@@ -78,10 +81,13 @@ impl CategoryApi {
         &self,
         Data(db): Data<&SqlitePool>,
     ) -> ServerResult<Json<Vec<Category>>> {
-        let categories = sqlx::query_as!(Category, "SELECT id, name, description FROM category")
-            .fetch_all(db)
-            .await
-            .context("fetch categories")?;
+        let categories = sqlx::query_as!(
+            Category,
+            "SELECT id, name, description, image_url FROM category"
+        )
+        .fetch_all(db)
+        .await
+        .context("fetch categories")?;
 
         Ok(Json(categories))
     }
@@ -98,7 +104,7 @@ impl CategoryApi {
     ) -> ServerResult<CategoryByIdResponse> {
         let category = sqlx::query_as!(
             Category,
-            "SELECT id, name, description FROM category WHERE id = ?",
+            "SELECT id, name, description, image_url FROM category WHERE id = ?",
             id
         )
         .fetch_optional(db)
@@ -124,9 +130,10 @@ impl CategoryApi {
         }
 
         let inserted = sqlx::query!(
-            "INSERT INTO category (name, description) VALUES (?, ?) RETURNING id",
+            "INSERT INTO category (name, description, image_url) VALUES (?, ?, ?) RETURNING id",
             category.name,
-            category.description
+            category.description,
+            category.image_url
         )
         .fetch_one(db)
         .await
@@ -153,9 +160,10 @@ impl CategoryApi {
         }
 
         sqlx::query!(
-            "UPDATE category SET name = ?, description = ? WHERE id = ?",
+            "UPDATE category SET name = ?, description = ?, image_url = ? WHERE id = ?",
             category.name,
             category.description,
+            category.image_url,
             id
         )
         .execute(db)

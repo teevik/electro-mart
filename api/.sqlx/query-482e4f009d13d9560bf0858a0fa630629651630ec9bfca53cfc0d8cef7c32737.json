@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n                SELECT\n                    id,\n                    order_date,\n                    total_price,\n                    status\n                FROM `order`\n            ",
+  "query": "\n                SELECT\n                    id,\n                    order_date,\n                    total_price,\n                    status\n                FROM `order`\n                WHERE user_id = ?\n            ",
   "describe": {
     "columns": [
       {
@@ -25,7 +25,7 @@
       }
     ],
     "parameters": {
-      "Right": 0
+      "Right": 1
     },
     "nullable": [
       false,
@@ -34,5 +34,5 @@
       false
     ]
   },
-  "hash": "aef9f714d9fe3c9809c6bf194a0a706308144be5d05c2388ffa5e966afec3f8d"
+  "hash": "482e4f009d13d9560bf0858a0fa630629651630ec9bfca53cfc0d8cef7c32737"
 }

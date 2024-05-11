@@ -141,7 +141,11 @@ pub struct OrderApi;
 #[OpenApi(tag = ApiTags::Order)]
 impl OrderApi {
     #[oai(path = "/orders", method = "get", operation_id = "allOrders")]
-    async fn all_orders(&self, Data(db): Data<&SqlitePool>) -> ServerResult<Json<Vec<Order>>> {
+    async fn all_orders(
+        &self,
+        AuthToken(user): AuthToken,
+        Data(db): Data<&SqlitePool>,
+    ) -> ServerResult<Json<Vec<Order>>> {
         let orders = sqlx::query_as!(
             Order,
             "
@@ -151,7 +155,9 @@ impl OrderApi {
                     total_price,
                     status
                 FROM `order`
-            "
+                WHERE user_id = ?
+            ",
+            user.id
         )
         .fetch_all(db)
         .await
@@ -164,6 +170,7 @@ impl OrderApi {
     async fn get_order(
         &self,
         Path(id): Path<i64>,
+        AuthToken(user): AuthToken,
         Data(db): Data<&SqlitePool>,
     ) -> ServerResult<OrderByIdResponse> {
         let row = sqlx::query!(
@@ -178,8 +185,9 @@ impl OrderApi {
                     payment.status AS payment_status
                 FROM `order`
                 LEFT OUTER JOIN payment ON `order`.id = payment.order_id
-                WHERE `order`.id = ?
+                WHERE user_id = ? AND `order`.id = ?
             ",
+            user.id,
             id
         )
         .fetch_optional(db)
@@ -330,6 +338,19 @@ impl OrderApi {
         .execute(db)
         .await
         .context("insert payment")?;
+
+        sqlx::query!(
+            "
+                UPDATE `order`
+                SET status = ?
+                WHERE id = ?
+            ",
+            OrderStatus::Paid,
+            order_id
+        )
+        .execute(db)
+        .await
+        .context("update order status")?;
 
         Ok(PayResponse::Paid)
     }

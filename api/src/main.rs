@@ -36,7 +36,7 @@ pub enum ApiTags {
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
-    let database_file = "database.sqlite";
+    let database_file = "database/database.sqlite";
 
     let options = SqliteConnectOptions::new()
         .filename(database_file)

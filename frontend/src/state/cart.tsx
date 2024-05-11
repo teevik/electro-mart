@@ -1,14 +1,17 @@
+import { components } from "../../openapi/openapi";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { createContext, useContext } from "react";
-import { OrderItem } from "../../openapi/requests";
 
 const CART_KEY = "cart";
+
+type OrderItem = components["schemas"]["OrderItem"];
 
 interface Cart {
   items: OrderItem[];
   addToCart: (productId: number) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
+  clearCart: () => void;
 }
 
 const CartContext = createContext<Cart | null>(null);
@@ -65,7 +68,11 @@ function useCartProvider(): Cart {
     });
   }
 
-  return { items, addToCart, removeFromCart, updateQuantity };
+  function clearCart() {
+    setItems([]);
+  }
+
+  return { items, addToCart, removeFromCart, updateQuantity, clearCart };
 }
 
 export function useCart(): Cart {

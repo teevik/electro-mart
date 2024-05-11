@@ -6,9 +6,6 @@ const TOKEN_KEY = "token";
 
 export interface AuthenticatedUser {
   id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
 }
 
 type Auth =

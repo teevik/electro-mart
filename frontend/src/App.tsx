@@ -10,6 +10,8 @@ import { useAuth } from "./state/auth";
 import { ProductsPage } from "./pages/ProductsPage";
 import { ProductPage } from "./pages/ProductPage";
 import { CartPage } from "./pages/CartPage";
+import { OrdersPage } from "./pages/OrdersPage";
+import { OrderPage } from "./pages/OrderPage";
 
 type ShownDialog = "none" | "login" | "signup";
 
@@ -55,18 +57,29 @@ function App() {
           <Page title="Brands">awd</Page>
         </Route>
         {isLoggedIn && (
-          <Route path="/account">
-            <Page title="Account">
-              <AccountPage user={user} />
-            </Page>
-          </Route>
-        )}
-        {isLoggedIn && (
-          <Route path="/cart">
-            <Page title="Cart">
-              <CartPage />
-            </Page>
-          </Route>
+          <>
+            <Route path="/account">
+              <Page title="Account">
+                <AccountPage authUser={user} />
+              </Page>
+            </Route>
+
+            <Route path="/orders">
+              <Page title="Orders">
+                <OrdersPage />
+              </Page>
+            </Route>
+
+            <Route path="/orders/:id">
+              {({ id }) => <OrderPage id={id} />}
+            </Route>
+
+            <Route path="/cart">
+              <Page title="Cart">
+                <CartPage />
+              </Page>
+            </Route>
+          </>
         )}
 
         {/* Default route in a switch */}

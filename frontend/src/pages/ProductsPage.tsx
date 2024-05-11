@@ -1,8 +1,8 @@
-import { useProductServiceGetProductsSuspense } from "../../openapi/queries/suspense";
+import { api } from "../api";
 import { Link } from "../components/link";
 
 export function ProductsPage() {
-  const query = useProductServiceGetProductsSuspense();
+  const query = api.products.allProducts.useSuspenseQuery({});
   const products = query.data;
 
   return (

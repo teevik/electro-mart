@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import { useUserServicePostUserLogin } from "../openapi/queries";
-import { ApiError, LoginUserBody } from "../openapi/requests";
 import { Button } from "./components/button";
 import {
   Dialog,
@@ -13,6 +11,8 @@ import { Input } from "./components/input";
 import { Spinner } from "./components/Spinner";
 import { Text, TextButton } from "./components/text";
 import { useAuth } from "./state/auth";
+import { api } from "./api";
+import { components } from "../openapi/openapi";
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -20,11 +20,13 @@ interface LoginDialogProps {
   onOpenSignupDialog: () => void;
 }
 
+type LoginUserBody = components["schemas"]["LoginUserBody"];
+
 export function LoginDialog(props: LoginDialogProps) {
   const { isOpen, onClose, onOpenSignupDialog } = props;
 
   const { login } = useAuth();
-  const loginMutation = useUserServicePostUserLogin();
+  const loginMutation = api.user.loginUser.useMutation();
 
   // On success
   useEffect(() => {
@@ -42,12 +44,12 @@ export function LoginDialog(props: LoginDialogProps) {
     const formData = new FormData(event.currentTarget);
     const requestBody = Object.fromEntries(formData) as LoginUserBody;
 
-    loginMutation.mutate({ requestBody });
+    loginMutation.mutate({ body: requestBody });
   }
 
   let errorMessage: string | null;
   if (loginMutation.isError) {
-    errorMessage = (loginMutation.error as ApiError).message;
+    errorMessage = "Invalid email or password.";
   } else {
     errorMessage = null;
   }

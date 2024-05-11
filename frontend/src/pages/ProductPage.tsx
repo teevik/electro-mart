@@ -1,9 +1,9 @@
-import { useProductServiceGetProductsById } from "../../openapi/queries";
 import { Spinner } from "../components/Spinner";
 import { Text, TextLink } from "../components/text";
 import { useCart } from "../state/cart";
 import { Page } from "../Page";
 import { useEffect, useState } from "react";
+import { api } from "../api";
 
 interface ProductPageProps {
   id: string;
@@ -14,7 +14,7 @@ export function ProductPage(props: ProductPageProps) {
   const numericId = parseInt(id);
 
   const cart = useCart();
-  const query = useProductServiceGetProductsById({ id: numericId });
+  const query = api.products.productById.useQuery({ path: { id: numericId } });
 
   // Show a message when the product is added to the cart, then hide it after 3 seconds
   const [justAddedToCart, setJustAddedToCart] = useState(false);

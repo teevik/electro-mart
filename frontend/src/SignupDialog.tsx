@@ -9,10 +9,10 @@ import {
 import { ErrorMessage, Field, FieldGroup, Label } from "./components/fieldset";
 import { Input } from "./components/input";
 import { Text, TextButton } from "./components/text";
-import { useUserServicePostUserRegister } from "../openapi/queries";
 import { useAuth } from "./state/auth";
-import { ApiError, ReigsterUserBody } from "../openapi/requests";
 import { Spinner } from "./components/Spinner";
+import { api } from "./api";
+import { components } from "../openapi/openapi";
 
 interface SignupDialogProps {
   isOpen: boolean;
@@ -20,11 +20,13 @@ interface SignupDialogProps {
   onOpenLoginDialog: () => void;
 }
 
+type RegisterUserBody = components["schemas"]["RegisterUserBody"];
+
 export function SignupDialog(props: SignupDialogProps) {
   const { isOpen, onClose, onOpenLoginDialog } = props;
 
   const { login } = useAuth();
-  const registerMutation = useUserServicePostUserRegister();
+  const registerMutation = api.user.registerUser.useMutation();
 
   // On success
   useEffect(() => {
@@ -40,19 +42,19 @@ export function SignupDialog(props: SignupDialogProps) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const formBody = Object.fromEntries(formData) as any as ReigsterUserBody;
+    const formBody = Object.fromEntries(formData) as any as RegisterUserBody;
 
-    const requestBody: ReigsterUserBody = {
+    const requestBody: RegisterUserBody = {
       ...formBody,
       is_admin: false,
     };
 
-    registerMutation.mutate({ requestBody });
+    registerMutation.mutate({ body: requestBody });
   }
 
   let errorMessage: string | null;
   if (registerMutation.isError) {
-    errorMessage = (registerMutation.error as ApiError).message;
+    errorMessage = "Error signing up.";
   } else {
     errorMessage = null;
   }
